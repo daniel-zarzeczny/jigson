@@ -82,7 +82,7 @@ final JsonElement avg = Jigson.from(peopleObject).withContext(context).parse("@p
 ```java
 final JsonElement addresses =
 				Jigson.from(peopleObject)
-								.parsePipe("@people(age>10&&age<30).address")
+								.parseThen("@people(age>10&&age<30).address")
 								.filter("city=Winterfell")
 								.get().orElse(JsonNull.INSTANCE);
 ```
@@ -91,7 +91,7 @@ final JsonElement addresses =
 ```java
 final boolean match =
 					Jigson.from(peopleObject)
-							.parsePipe("@people(age>10&&age<30).address")
+							.parseThen("@people(age>10&&age<30).address")
 							.match("city=Winterfell");
 ```
 
