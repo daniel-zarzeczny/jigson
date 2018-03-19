@@ -69,100 +69,107 @@ as a **fetch query**. It implies looking for an attribute(s) meeting criterion (
 
 ```java
 // 'firstNames' is JsonArray underneath
-final JsonElement firstNames = Jigson.from(peopleObject).parse("@people(lastName=Stark||age<20).firstName");
+final JsonElement firstNames =
+	Jigson.from(peopleObject).parse("@people(lastName=Stark||age<20).firstName");
 ```
 
 ## Query with Aggregate Function - `avg()`
 ```java
 final Context context =
-				Context.newContext()
-								.filters().arrays().onlyMatching()
-								.numbers().withPrecisionAnd(2)
-								.withRoundingMode(BigDecimal.ROUND_HALF_UP);
+	Context.newContext()
+		.filters().arrays().onlyMatching()
+		.numbers().withPrecisionAnd(2)
+		.withRoundingMode(BigDecimal.ROUND_HALF_UP);
 
 // 'avg' is JsonPrimitive underneath contaning numeric value
 final JsonElement avg =
-				Jigson.from(peopleObject)
-								.withContext(context)
-								.parse("@people[::2](age>0).age.avg()");
+	Jigson.from(peopleObject)
+		.withContext(context)
+		.parse("@people[::2](age>0).age.avg()");
 ```
 
 ## Filter Result Set - `filter()`
 
 ```java
 final JsonElement addresses =
-				Jigson.from(peopleObject)
-								.parseThen("@people(age>10&&age<30).address")
-								.filter("city=Winterfell")
-								.get().orElse(JsonNull.INSTANCE);
+	Jigson.from(peopleObject)
+		.parseThen("@people(age>10&&age<30).address")
+		.filter("city=Winterfell")
+		.get().orElse(JsonNull.INSTANCE);
 ```
 
 ## Test Result Set - `match()`
 
 ```java
 final boolean match =
-					Jigson.from(peopleObject)
-							.parseThen("@people(age>10&&age<30).address")
-							.match("city=Winterfell");
+	Jigson.from(peopleObject)
+		.parseThen("@people(age>10&&age<30).address")
+		.match("city=Winterfell");
 ```
 
 ## Serialize Result to JSON - `json()`
 
 ```java
 final String json =
-					Jigson.from(peopleObject)
-							.parseThen("@people")
-							.filter("age>20")
-							.json();
+	Jigson.from(peopleObject)
+		.parseThen("@people")
+		.filter("age>20")
+		.json();
 ```
 
 ## Map Result Set - `map()`
 ```java
 public void mapParseResult() {
-		final JsonElement address =
-						Jigson.from(peopleObject)
-										.parseThen("@people")
-										.map(this::pickPerson)
-										.map(this::getAddress)
-										.get()
-										.orElse(JsonNull.INSTANCE);
+	final JsonElement address =
+		Jigson.from(peopleObject)
+			.parseThen("@people")
+			.map(this::pickPerson)
+			.map(this::getAddress)
+			.get()
+			.orElse(JsonNull.INSTANCE);
 }
 
 public JsonElement pickPerson(final JsonElement people) {
-		return people.getAsJsonArray().get(1).getAsJsonObject();
+	return people.getAsJsonArray().get(1).getAsJsonObject();
 }
 
 public JsonElement getAddress(final JsonElement person) {
-		return person.getAsJsonObject().get("address");
+	return person.getAsJsonObject().get("address");
 }
 ```
 ## Mapping to Any Java Bean - `mapJoin()`
 ```java
 class Person {
-		String firstName;
-		String lastName;
+	String firstName;
+	String lastName;
 }
-
+```
+```java
 public void mapParsingResultToPerson() {
-		final Person person =
-						Jigson.from(peopleObject)
-										.parseThen("@people")
-										.map(this::pickPerson)
-										.mapJoin(this::mapToPerson)
-										.get()
-										.orElseGet(Person::new);
+	final Person person =
+		Jigson.from(peopleObject)
+			.parseThen("@people")
+			.map(this::pickPerson)
+			.mapJoin(this::mapToPerson)
+			.get()
+			.orElseGet(Person::new);
 }
-
+```
+```java
 public JsonObject pickPerson(final JsonElement people) {
-		return people.getAsJsonArray().get(1).getAsJsonObject();
+	return people.getAsJsonArray().get(1).getAsJsonObject();
 }
-
+```
+```java
 public Person mapToPerson(final JsonElement jsonElement) {
-		final JsonObject personObject = jsonElement.getAsJsonObject();
-		final Person person = new Person();
-		person.firstName = personObject.get("firstName").getAsString();
-		person.lastName = personObject.get("lastName").getAsString();
-		return person;
+
+	final JsonObject personObject = jsonElement.getAsJsonObject();
+
+	final Person person = new Person();
+	person.firstName = personObject.get("firstName").getAsString();
+	person.lastName = personObject.get("lastName").getAsString();
+
+	return person;
 }
 ```
 
