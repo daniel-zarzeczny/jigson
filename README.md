@@ -61,10 +61,11 @@ Let's say we have JSON document as follows:
 
 # <a id="examples"></a> Let's get hands dirty!
 
-## Query for an Attribute  - `parse()`
 > :exclamation: Every JiGSON query must start with `@` symbol.
 When JiGSON finds query preceded by `@` then it's interpreted
 as a **fetch query**. It implies looking for an attribute(s) meeting criterion (if any specified in query).
+
+## Query for an Attribute  - `parse()`
 
 ```java
 // 'firstNames' is JsonArray underneath
