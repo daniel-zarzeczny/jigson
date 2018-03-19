@@ -61,24 +61,33 @@ Let's say we have JSON document as follows:
 
 # <a id="examples"></a> Let's get hands dirty!
 
-1. Query for an attribute with criterion applied
+## Query for an Attribute  - `parse()`
+> :exclamation: Every JiGSON query must start with `@` symbol.
+When JiGSON finds query preceded by `@` then it's interpreted
+as a **fetch query**. It implies looking for an attribute(s) meeting criterion (if any specified in query).
+
 ```java
 // 'firstNames' is JsonArray underneath
 final JsonElement firstNames = Jigson.from(peopleObject).parse("@people(lastName=Stark||age<20).firstName");
 ```
 
-2. Query for average value of an attribute with custom context
+## Query with Aggregate Function - `avg()`
 ```java
 final Context context =
-			Context.newContext()
-						 .filters().arrays().onlyMatching()
-						 .numbers().withPrecisionAnd(2)
- 								  .withRoundingMode(BigDecimal.ROUND_HALF_UP);
+				Context.newContext()
+								.filters().arrays().onlyMatching()
+								.numbers().withPrecisionAnd(2)
+								.withRoundingMode(BigDecimal.ROUND_HALF_UP);
+
 // 'avg' is JsonPrimitive underneath contaning numeric value
-final JsonElement avg = Jigson.from(peopleObject).withContext(context).parse("@people[::2](age>0).age.avg()");
+final JsonElement avg =
+				Jigson.from(peopleObject)
+								.withContext(context)
+								.parse("@people[::2](age>0).age.avg()");
 ```
 
-3. Filtering as a post-processing job
+## Filter Result Set - `filter()`
+
 ```java
 final JsonElement addresses =
 				Jigson.from(peopleObject)
@@ -87,12 +96,73 @@ final JsonElement addresses =
 								.get().orElse(JsonNull.INSTANCE);
 ```
 
-4. Matching as a post-processing job
+### Test Result Set - `match()`
+
 ```java
 final boolean match =
 					Jigson.from(peopleObject)
 							.parseThen("@people(age>10&&age<30).address")
 							.match("city=Winterfell");
+```
+
+## Serialize Result to JSON - `json()`
+
+```java
+final String json =
+					Jigson.from(peopleObject)
+							.parseThen("@people")
+							.filter("age>20")
+							.json();
+```
+
+## Map Result Set - `map()`
+```java
+public void mapParseResult() {
+		final JsonElement address =
+						Jigson.from(peopleObject)
+										.parseThen("@people")
+										.map(this::pickPerson)
+										.map(this::getAddress)
+										.get()
+										.orElse(JsonNull.INSTANCE);
+}
+
+public JsonElement pickPerson(final JsonElement people) {
+		return people.getAsJsonArray().get(1).getAsJsonObject();
+}
+
+public JsonElement getAddress(final JsonElement person) {
+		return person.getAsJsonObject().get("address");
+}
+```
+## Mapping to Any Java Bean - `mapJoin()`
+```java
+class Person {
+		String firstName;
+		String lastName;
+}
+
+public void mapParsingResultToPerson() {
+		final Person person =
+						Jigson.from(peopleObject)
+										.parseThen("@people")
+										.map(this::pickPerson)
+										.mapJoin(this::mapToPerson)
+										.get()
+										.orElseGet(Person::new);
+}
+
+public JsonObject pickPerson(final JsonElement people) {
+		return people.getAsJsonArray().get(1).getAsJsonObject();
+}
+
+public Person mapToPerson(final JsonElement jsonElement) {
+		final JsonObject personObject = jsonElement.getAsJsonObject();
+		final Person person = new Person();
+		person.firstName = personObject.get("firstName").getAsString();
+		person.lastName = personObject.get("lastName").getAsString();
+		return person;
+}
 ```
 
 # <a id="aggregate_functions"></a>Aggregate functions

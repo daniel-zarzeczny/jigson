@@ -20,12 +20,16 @@ package io.jigson.pipe;
 import io.jigson.expression.predicate.Predicate;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
-public class JoinPipe<T> implements Pipe<T> {
+import static io.jigson.utils.JsonUtils.getMapper;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-    protected final Source<T> source;
+public class JoinPipe<T> {
 
-    protected JoinPipe(final Source<T> source) {
+    private final Source<T> source;
+
+    private JoinPipe(final Source<T> source) {
         this.source = source;
     }
 
@@ -33,43 +37,39 @@ public class JoinPipe<T> implements Pipe<T> {
         return new JoinPipe<>(source);
     }
 
-    @Override
-    public <U, R> Pipe<R> join(final Flow<T, U> primary, final Flow<U, R> secondary) {
-        final R output = secondary.flow(primary.flow(source.getOutput()));
-        return new JoinPipe<>(Source.of(output));
+    public <U> JoinPipe<U> map(final Flow<T, U> flow) {
+        final U output = flow.flow(source.get());
+        return JoinPipe.from(Source.of(output));
     }
 
-    @Override
-    public <U> Pipe<U> concat(final Flow<T, U> flow) {
-        final U output = flow.flow(source.getOutput());
-        return new JoinPipe<>(Source.of(output));
+    public <U> JoinPipe<U> map(Supplier<Flow<T, U>> supplier) {
+        return map(supplier.get());
     }
 
-    @Override
     public <R> Sink<R> flush(final Flow<T, R> flow) {
-        final R output = flow.flow(source.getOutput());
+        final R output = flow.flow(source.get());
         return Sink.of(output);
     }
 
-    @Override
+    public <R> Sink<R> flush(Supplier<Flow<T, R>> supplier) {
+        return flush(supplier.get());
+    }
+
     public boolean match(final Predicate<T> predicate) {
-        return predicate.accept(source.getOutput());
+        return predicate.accept(source.get());
     }
 
-    @Override
-    public Pipe<Boolean> matchThen(final Predicate<T> predicate) {
-        final boolean match = predicate.accept(source.getOutput());
-        return new JoinPipe<>(Source.of(match));
+    public JoinPipe<Boolean> matchThen(final Predicate<T> predicate) {
+        final boolean match = predicate.accept(source.get());
+        return JoinPipe.from(Source.of(match));
     }
 
-    @Override
+    public String json() {
+        return get().map(getMapper()::toJson).orElse(EMPTY);
+    }
+
     public Optional<T> get() {
-        return Optional.of(source.getOutput());
-    }
-
-    @Override
-    public void println() {
-        System.out.println(source.getOutput());
+        return Optional.of(source.get());
     }
 
 }

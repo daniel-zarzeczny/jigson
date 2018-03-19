@@ -16,7 +16,6 @@
         <guava.version>24.0-jre</guava.version>
         <commons-collections.version>4.1</commons-collections.version>
         <commons-lang3.version>3.7</commons-lang3.version>
-        <lombok.version>1.16.20</lombok.version>
         <junit.version>4.12</junit.version>
         <truth.version>0.39</truth.version>
     </properties>

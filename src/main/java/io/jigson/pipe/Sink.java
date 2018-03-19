@@ -28,7 +28,7 @@ public class Sink<T> {
         return new Sink<>(input);
     }
 
-    public T getInput() {
+    public T get() {
         return input;
     }
 }

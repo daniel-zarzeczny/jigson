@@ -17,17 +17,24 @@
 package io.jigson.json.pipe;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import io.jigson.config.Context;
+import io.jigson.expression.predicate.Predicate;
 import io.jigson.json.expression.JsonPredicate;
-import io.jigson.pipe.JoinPipe;
-import io.jigson.pipe.Source;
+import io.jigson.pipe.*;
 
-public class JsonPipe extends JoinPipe<JsonElement> {
+import java.util.Optional;
+import java.util.function.Supplier;
 
+import static io.jigson.utils.JsonUtils.getMapper;
+
+public class JsonPipe {
+
+    private final Source<JsonElement> source;
     private Context context = Context.newContext();
 
-    JsonPipe(final Source<JsonElement> source) {
-        super(source);
+    private JsonPipe(final Source<JsonElement> source) {
+        this.source = source;
     }
 
     public static JsonPipe from(final JsonElement jsonElement) {
@@ -39,14 +46,51 @@ public class JsonPipe extends JoinPipe<JsonElement> {
         return this;
     }
 
+    public <R> Sink<R> flush(final Flow<JsonElement, R> flow) {
+        return JoinPipe.from(source).flush(flow);
+    }
+
+    public <R> Sink<R> flush(final Supplier<Flow<JsonElement, R>> supplier) {
+        return flush(supplier.get());
+    }
+
+    public <R> JoinPipe<R> mapJoin(final Flow<JsonElement, R> flow) {
+        return JoinPipe.from(source).map(flow);
+    }
+
+    public <R> JoinPipe<R> mapJoin(final Supplier<Flow<JsonElement, R>> supplier) {
+        return mapJoin(supplier.get());
+    }
+
+    public JsonPipe map(final UnitaryFlow<JsonElement> flow) {
+        final JsonElement output = flush(flow).get();
+        return JsonPipe.from(output);
+    }
+
+    public JsonPipe map(final Supplier<UnitaryFlow<JsonElement>> supplier) {
+        return map(supplier.get());
+    }
+
     public JsonPipe filter(final String criterion) {
-        final JsonElement sourceOutput = source.getOutput();
-        final JsonElement flowOutput = new FilterFlow(criterion).withContext(context).flow(sourceOutput);
-        return JsonPipe.from(flowOutput).withContext(context);
+        final FilterFlow filterFlow = new FilterFlow(criterion).withContext(context);
+        return map(filterFlow);
+    }
+
+    public boolean match(final Predicate<JsonElement> predicate) {
+        return JoinPipe.from(source).match(predicate);
     }
 
     public boolean match(final String criterion) {
         final JsonPredicate predicate = JsonPredicate.from(criterion).withContext(context);
         return match(predicate);
+    }
+
+    public String json() {
+        final JsonElement jsonElement = get().orElse(JsonNull.INSTANCE);
+        return getMapper().toJson(jsonElement);
+    }
+
+    public Optional<JsonElement> get() {
+        return Optional.ofNullable(source.get());
     }
 }

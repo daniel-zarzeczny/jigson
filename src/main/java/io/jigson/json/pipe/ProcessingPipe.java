@@ -21,9 +21,10 @@ import io.jigson.pipe.Source;
 import io.jigson.pipe.UnitaryFlow;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
-public class ProcessingPipe extends JsonPipe {
+public class ProcessingPipe {
 
     private Supplier<? extends RuntimeException> throwableSupplier;
     private UnitaryFlow<JsonElement> whenNullFlow;
@@ -32,8 +33,10 @@ public class ProcessingPipe extends JsonPipe {
     private UnitaryFlow<JsonElement> whenJsonObjectFlow;
     private UnitaryFlow<JsonElement> whenJsonArrayFlow;
 
+    private final Source<JsonElement> source;
+
     private ProcessingPipe(final Source<JsonElement> source) {
-        super(source);
+        this.source = source;
     }
 
     public static ProcessingPipe from(final JsonElement jsonElement) {
@@ -77,7 +80,7 @@ public class ProcessingPipe extends JsonPipe {
 
     public ProcessingPipe process() {
 
-        final JsonElement jsonElement = source.getOutput();
+        final JsonElement jsonElement = source.get();
 
         if (Objects.isNull(jsonElement)) {
             return processNull();
@@ -96,9 +99,9 @@ public class ProcessingPipe extends JsonPipe {
         if (Objects.nonNull(throwableSupplier)) {
             throw throwableSupplier.get();
         } else if (Objects.nonNull(whenNullFlow)) {
-            return executeFlow(whenNullFlow, null);
+            return executeFlow(whenNullFlow);
         } else {
-            return executeFlow(whenNullOrJsonNullFlow, null);
+            return executeFlow(whenNullOrJsonNullFlow);
         }
     }
 
@@ -110,8 +113,16 @@ public class ProcessingPipe extends JsonPipe {
         }
     }
 
+    private ProcessingPipe executeFlow(final UnitaryFlow<JsonElement> flow) {
+        return executeFlow(flow, null);
+    }
+
     private ProcessingPipe executeFlow(final UnitaryFlow<JsonElement> flow, final JsonElement jsonElement) {
         final JsonElement result = flow.flow(jsonElement);
         return ProcessingPipe.from(result);
+    }
+
+    public Optional<JsonElement> get() {
+        return Optional.ofNullable(source.get());
     }
 }

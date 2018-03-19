@@ -24,8 +24,8 @@ import io.jigson.config.Context;
 import io.jigson.json.pipe.JsonPipe;
 import io.jigson.pipe.UnitaryFlow;
 import io.jigson.utils.PathUtils;
-import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static io.jigson.utils.CriterionUtils.findCriterion;
@@ -62,14 +62,14 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
     }
 
     private JsonElement fetch(final JsonElement currentElement, final String currentPath) {
-        if (currentElement.isJsonArray()) {
-            return fetchArray(currentElement.getAsJsonArray(), currentPath);
+        if (Objects.isNull(currentElement) || currentElement.isJsonNull()) {
+            return JsonNull.INSTANCE;
         } else if (currentElement.isJsonObject()) {
             return fetchObject(currentElement.getAsJsonObject(), currentPath);
-        } else if (currentElement.isJsonNull()) {
-            return JsonNull.INSTANCE;
+        } else if (currentElement.isJsonArray()) {
+            return fetchArray(currentElement.getAsJsonArray(), currentPath);
         } else {
-            throw new NotImplementedException("Unsupported JsonElement type!");
+            throw new IllegalArgumentException();
         }
     }
 

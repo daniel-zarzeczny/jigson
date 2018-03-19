@@ -28,7 +28,7 @@ public class Source<T> {
         return new Source<>(output);
     }
 
-    public T getOutput() {
+    public T get() {
         return output;
     }
 }
