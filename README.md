@@ -137,7 +137,7 @@ public JsonElement getAddress(final JsonElement person) {
 	return person.getAsJsonObject().get("address");
 }
 ```
-## Mapping to Any Java Bean - `mapJoin()`
+## Mapping to Any Java Bean - `mapToObj()`
 ```java
 class Person {
 	String firstName;
@@ -150,7 +150,7 @@ public void mapParsingResultToPerson() {
 		Jigson.from(peopleObject)
 			.parseThen("@people")
 			.map(this::pickPerson)
-			.mapJoin(this::mapToPerson)
+			.mapToObj(this::mapToPerson)
 			.get()
 			.orElseGet(Person::new);
 }

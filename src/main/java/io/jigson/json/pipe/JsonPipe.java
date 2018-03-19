@@ -54,12 +54,12 @@ public class JsonPipe {
         return flush(supplier.get());
     }
 
-    public <R> JoinPipe<R> mapJoin(final Flow<JsonElement, R> flow) {
+    public <R> JoinPipe<R> mapToObj(final Flow<JsonElement, R> flow) {
         return JoinPipe.from(source).map(flow);
     }
 
-    public <R> JoinPipe<R> mapJoin(final Supplier<Flow<JsonElement, R>> supplier) {
-        return mapJoin(supplier.get());
+    public <R> JoinPipe<R> mapToObj(final Supplier<Flow<JsonElement, R>> supplier) {
+        return mapToObj(supplier.get());
     }
 
     public JsonPipe map(final UnitaryFlow<JsonElement> flow) {
