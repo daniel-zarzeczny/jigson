@@ -96,7 +96,7 @@ final JsonElement addresses =
 								.get().orElse(JsonNull.INSTANCE);
 ```
 
-### Test Result Set - `match()`
+## Test Result Set - `match()`
 
 ```java
 final boolean match =
