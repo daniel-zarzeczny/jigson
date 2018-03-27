@@ -1,5 +1,5 @@
 /*
- *    Copyright 2018 Daniel Zarzeczny
+ *    Copyright 2018 the original author or authors
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,22 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package io.jigson.core;
 
-package io.jigson.json.expression;
-
-import com.google.gson.JsonNull;
-
-public class TrueExpression extends JsonExpression {
-
-    static final TrueExpression INSTANCE = new TrueExpression();
-    private static final String TAUTOLOGICAL_CRITERION = "1=1";
-
-    private TrueExpression() {
-        super(JsonNull.INSTANCE, TAUTOLOGICAL_CRITERION);
-    }
-
-    @Override
-    public Boolean interpret() {
-        return true;
-    }
+/**
+ * Represents an exception which should be thrown
+ * when query's malformed or it has an illegal syntax.
+ *
+ * @author Daniel Zarzeczny
+ */
+public class IllegalQueryException extends RuntimeException {
 }

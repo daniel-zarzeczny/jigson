@@ -42,6 +42,7 @@ public final class TokenizerFactory {
                 .withPattern(TokenPattern.DOLLAR_SYMBOL, Token.DOLLAR_SYMBOL)
                 .withPattern(TokenPattern.AT_SYMBOL, Token.AT_SYMBOL)
                 .withPattern(TokenPattern.DOT_SYMBOL, Token.DOT_SYMBOL)
+                .withPattern(TokenPattern.QUESTION_MARK, Token.QUESTION_MARK)
                 .withPattern(TokenPattern.COLON, Token.COLON)
                 .withPattern(TokenPattern.QUOTE, Token.QUOTE)
                 .withPattern(TokenPattern.VARIABLE, Token.VARIABLE)
@@ -68,5 +69,16 @@ public final class TokenizerFactory {
                 .newInstance()
                 .withPattern(TokenPattern.NUMBER, Token.NUMBER)
                 .withPattern(TokenPattern.COLON, Token.COLON);
+    }
+
+    public static Tokenizer createComparisonTokenizer() {
+        return Tokenizer
+                .newInstance()
+                .withPattern(TokenPattern.EQ, Token.EQ)
+                .withPattern(TokenPattern.NEQ, Token.NEQ)
+                .withPattern(TokenPattern.GTET, Token.GTET)
+                .withPattern(TokenPattern.GT, Token.GT)
+                .withPattern(TokenPattern.LTET, Token.LTET)
+                .withPattern(TokenPattern.LT, Token.LT);
     }
 }

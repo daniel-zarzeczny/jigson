@@ -17,7 +17,9 @@
 package io.jigson.core;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import io.jigson.config.Context;
+import io.jigson.core.flow.ExpressionFlow;
 import io.jigson.core.flow.FetchFlow;
 import io.jigson.core.flow.Query;
 import io.jigson.json.pipe.JsonPipe;
@@ -53,11 +55,14 @@ public final class Jigson {
 
             final Query query = Query.from(trimmedQuery);
             final Token initialToken = query.next();
+            final int initialTokenIndex = initialToken.getIndex();
 
-            if (Token.DOLLAR_SYMBOL == initialToken.getIndex()) {
+            if (Token.DOLLAR_SYMBOL == initialTokenIndex) {
                 throw new UnsupportedOperationException("Not supported so far!");
-            } else if (Token.AT_SYMBOL == initialToken.getIndex()) {
+            } else if (Token.AT_SYMBOL == initialTokenIndex) {
                 return fetch(query);
+            } else if (Token.QUESTION_MARK == initialTokenIndex) {
+                return expression(trimmedQuery);
             }
             throw new IllegalPrefixTokenException();
         }
@@ -66,7 +71,12 @@ public final class Jigson {
 
     private JsonElement fetch(final Query query) {
         final FetchFlow flow = new FetchFlow(query, context);
-        return JsonPipe.from(jsonElement).flush(flow).get();
+        return JsonPipe.from(jsonElement).withContext(context).flush(flow).get();
+    }
+
+    private JsonPrimitive expression(final String query) {
+        final ExpressionFlow flow = new ExpressionFlow(query, context);
+        return JsonPipe.from(jsonElement).withContext(context).flush(flow).get();
     }
 
     public JsonPipe parseThen(final String rawQuery) {

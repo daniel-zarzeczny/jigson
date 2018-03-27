@@ -69,6 +69,10 @@ public final class Query implements Iterator<Token> {
         return path.toString();
     }
 
+    public int leftTokens() {
+        return tokens.size() - iterator.nextIndex();
+    }
+
     Query fork() {
         final int nextIndex = iterator.nextIndex();
         final int size = tokens.size();

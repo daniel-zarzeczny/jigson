@@ -16,8 +16,12 @@
 
 package io.jigson.expression;
 
+import com.google.common.collect.Sets;
 import io.jigson.core.Token;
 import io.jigson.core.TokenizerFactory;
+
+import java.util.Collections;
+import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
@@ -35,6 +39,8 @@ public final class Operators {
     public static final String AND = "&&";
     public static final String OR = "||";
 
+    private static final Set<String> COMPARISON_OPERATOR = Sets.newHashSet(EQ, NEQ, LTET, LT, GTET, GT);
+
     private Operators() {
     }
 
@@ -47,5 +53,9 @@ public final class Operators {
                         .map(Token::getToken)
                         .findFirst()
                         .orElse(EMPTY);
+    }
+
+    public static Set<String> comparisonOperators() {
+        return Collections.unmodifiableSet(COMPARISON_OPERATOR);
     }
 }
