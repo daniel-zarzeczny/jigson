@@ -297,7 +297,7 @@ public class JigsonFetchTest {
     public void shouldParseExpression_WhenComposedCorrectly() {
 
         // given
-        final String query = "?people.size() > 5";
+        final String query = "?people.size() >= 5";
 
         // when
         final JsonElement result = Jigson.from(peopleObject).parse(query);

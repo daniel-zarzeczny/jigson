@@ -15,19 +15,22 @@
  */
 package io.jigson.core.flow;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.config.Context;
 import io.jigson.core.IllegalQueryException;
+import io.jigson.core.Token;
+import io.jigson.core.TokenizerFactory;
 import io.jigson.expression.Operators;
 import io.jigson.expression.predicate.Predicate;
 import io.jigson.expression.predicate.PredicateFactory;
 import io.jigson.pipe.Flow;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 /**
  * Represents a flow responsible for evaluating result of comparison expression,
@@ -38,7 +41,6 @@ import java.util.stream.IntStream;
 public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
 
     private static final Set<String> COMPARISON_OPERATORS = Operators.comparisonOperators();
-    private static final int INDEX_ZERO = 0;
     private static final int INDEX_ONE = 1;
 
     private final String trimmedQuery;
@@ -53,10 +55,12 @@ public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
     public JsonPrimitive flow(final JsonElement jsonElement) {
 
         final String comparisionOperator = resolveComparisonOperator().orElseThrow(IllegalQueryException::new);
-        final int operatorIndex = trimmedQuery.lastIndexOf(comparisionOperator);
 
-        final String rightOperandValue = getRightOperand(operatorIndex);
-        final String leftOperandValue = getLeftOperand(jsonElement, operatorIndex);
+        final int startOperatorIndex = trimmedQuery.lastIndexOf(comparisionOperator);
+        final int endOperatorIndex = startOperatorIndex + comparisionOperator.length() - 1;
+
+        final String rightOperandValue = getRightOperand(endOperatorIndex);
+        final String leftOperandValue = getLeftOperand(jsonElement, startOperatorIndex);
 
         final Predicate<String> predicate = PredicateFactory.create(comparisionOperator, leftOperandValue);
         return new JsonPrimitive(predicate.accept(rightOperandValue));
@@ -64,11 +68,13 @@ public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
 
     private Optional<String> resolveComparisonOperator() {
 
-        final String reversedQuery = StringUtils.reverse(trimmedQuery.substring(INDEX_ONE));
-        return IntStream
-                .range(INDEX_ZERO, reversedQuery.length())
-                .mapToObj(reversedQuery::charAt)
-                .map(String::valueOf)
+        final String query = trimmedQuery.substring(INDEX_ONE);
+
+        final List<Token> tokens = TokenizerFactory.createQueryTokenizer().tokenize(query);
+        return Lists
+                .reverse(tokens)
+                .stream()
+                .map(Token::getToken)
                 .filter(COMPARISON_OPERATORS::contains)
                 .findFirst();
     }
