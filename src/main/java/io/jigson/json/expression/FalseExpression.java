@@ -21,7 +21,7 @@ import com.google.gson.JsonNull;
 public class FalseExpression extends JsonExpression {
 
     static final FalseExpression INSTANCE = new FalseExpression();
-    static final String ALWAYS_FALSE_CRITERION = "1=0";
+    private static final String ALWAYS_FALSE_CRITERION = "1=0";
 
     private FalseExpression() {
         super(JsonNull.INSTANCE, ALWAYS_FALSE_CRITERION);

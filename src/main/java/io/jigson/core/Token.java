@@ -23,27 +23,28 @@ public class Token implements Serializable {
 
     public static final int DOLLAR_SYMBOL = 1;
     public static final int AT_SYMBOL = 2;
-    public static final int DOT_SYMBOL = 3;
-    public static final int QUOTE = 4;
-    public static final int COLON = 5;
-    public static final int VARIABLE = 6;
-    public static final int NUMBER = 7;
-    public static final int OPEN_BRACKET = 8;
-    public static final int CLOSE_BRACKET = 9;
-    public static final int OPEN_SQ_BRACKET = 10;
-    public static final int CLOSE_SQ_BRACKET = 11;
-    public static final int OPEN_CURLY_BRACE = 12;
-    public static final int CLOSE_CURLY_BRACE = 13;
+    public static final int QUESTION_MARK = 3;
+    public static final int DOT_SYMBOL = 4;
+    public static final int QUOTE = 5;
+    public static final int COLON = 6;
+    public static final int VARIABLE = 7;
+    public static final int NUMBER = 8;
+    public static final int OPEN_BRACKET = 9;
+    public static final int CLOSE_BRACKET = 10;
+    public static final int OPEN_SQ_BRACKET = 11;
+    public static final int CLOSE_SQ_BRACKET = 12;
+    public static final int OPEN_CURLY_BRACE = 13;
+    public static final int CLOSE_CURLY_BRACE = 14;
 
-    public static final int EQ = 14;
-    public static final int NEQ = 15;
-    public static final int LTET = 16;
-    public static final int LT = 17;
-    public static final int GTET = 18;
-    public static final int GT = 19;
-    public static final int AND = 20;
-    public static final int OR = 21;
-    public static final int THEN = 22;
+    public static final int EQ = 15;
+    public static final int NEQ = 16;
+    public static final int LTET = 17;
+    public static final int LT = 18;
+    public static final int GTET = 19;
+    public static final int GT = 20;
+    public static final int AND = 21;
+    public static final int OR = 22;
+    public static final int THEN = 23;
 
     private final int index;
     private final String token;

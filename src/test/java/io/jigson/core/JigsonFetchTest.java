@@ -292,4 +292,50 @@ public class JigsonFetchTest {
         assertThat(result.isJsonPrimitive()).isTrue();
         assertThat(result.getAsJsonPrimitive().getAsInt()).isEqualTo(10);
     }
+
+    @Test
+    public void shouldParseExpression_WhenComposedCorrectly() {
+
+        // given
+        final String query = "?people.count() > 5";
+
+        // when
+        final JsonElement result = Jigson.from(peopleObject).parse(query);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isJsonPrimitive()).isTrue();
+        assertThat(result.getAsJsonPrimitive().getAsBoolean()).isFalse();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhileParsing_WhenRightOperandIsNotNumeric() {
+
+        // given
+        final String query = "?people.count() > XXX";
+
+        // when
+        Jigson.from(peopleObject).parse(query);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhileParsing_WhenLeftOperandIsNotNumeric() {
+
+        // given
+        final String query = "?people(firstName=John).lastName > 5";
+        final Context context = Context.newContext().filters().arrays().onlyMatching();
+
+        // when
+        Jigson.from(peopleObject).withContext(context).parse(query);
+    }
+
+    @Test(expected = IllegalQueryException.class)
+    public void shouldThrowExceptionWhileParsing_WhenComparisonOperatorNotFound() {
+
+        // given
+        final String query = "?people.count()";
+
+        // when
+        Jigson.from(peopleObject).parse(query);
+    }
 }
