@@ -297,7 +297,7 @@ public class JigsonFetchTest {
     public void shouldParseExpression_WhenComposedCorrectly() {
 
         // given
-        final String query = "?people.count() > 5";
+        final String query = "?people.size() > 5";
 
         // when
         final JsonElement result = Jigson.from(peopleObject).parse(query);
@@ -312,7 +312,7 @@ public class JigsonFetchTest {
     public void shouldThrowExceptionWhileParsing_WhenRightOperandIsNotNumeric() {
 
         // given
-        final String query = "?people.count() > XXX";
+        final String query = "?people.size() > XXX";
 
         // when
         Jigson.from(peopleObject).parse(query);
@@ -333,7 +333,7 @@ public class JigsonFetchTest {
     public void shouldThrowExceptionWhileParsing_WhenComparisonOperatorNotFound() {
 
         // given
-        final String query = "?people.count()";
+        final String query = "?people.size()";
 
         // when
         Jigson.from(peopleObject).parse(query);

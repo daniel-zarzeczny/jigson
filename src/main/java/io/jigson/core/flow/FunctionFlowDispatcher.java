@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class FunctionFlowDispatcher {
 
     private static final String COUNT_PREFIX = "count";
+    private static final String SIZE_PREFIX = "size";
     private static final String SUM_PREFIX = "sum";
     private static final String AVG_PREFIX = "avg";
     private static final String MIN_PREFIX = "min";
@@ -41,6 +42,8 @@ public class FunctionFlowDispatcher {
             throw new IllegalArgumentException();
         } else if (functionName.startsWith(COUNT_PREFIX)) {
             return CountFlow.INSTANCE.flow(jsonElement);
+        } else if (functionName.startsWith(SIZE_PREFIX)) {
+            return SizeFlow.INSTANCE.flow(jsonElement);
         } else if (functionName.startsWith(SUM_PREFIX)) {
             return SumFlow.INSTANCE.flow(jsonElement);
         } else if (functionName.startsWith(AVG_PREFIX)) {
