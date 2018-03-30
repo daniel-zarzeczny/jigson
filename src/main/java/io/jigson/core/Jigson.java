@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 import io.jigson.config.Context;
 import io.jigson.core.flow.ExpressionFlow;
 import io.jigson.core.flow.FetchFlow;
+import io.jigson.core.flow.KeepFlow;
 import io.jigson.core.flow.Query;
 import io.jigson.json.pipe.JsonPipe;
 
@@ -61,6 +62,8 @@ public final class Jigson {
                 throw new UnsupportedOperationException("Not supported so far!");
             } else if (Token.AT_SYMBOL == initialTokenIndex) {
                 return fetch(query);
+            } else if (Token.HASH_SYMBOL == initialTokenIndex) {
+                return keep(query);
             } else if (Token.QUESTION_MARK == initialTokenIndex) {
                 return expression(trimmedQuery);
             }
@@ -69,9 +72,13 @@ public final class Jigson {
         throw new UnexpectedSymbolException();
     }
 
-    private JsonElement fetch(final Query query) {
+    public JsonElement fetch(final Query query) {
         final FetchFlow flow = new FetchFlow(query, context);
         return JsonPipe.from(jsonElement).withContext(context).flush(flow).get();
+    }
+
+    private JsonElement keep(final Query query) {
+        return new KeepFlow(query, context).flow(jsonElement);
     }
 
     private JsonPrimitive expression(final String query) {

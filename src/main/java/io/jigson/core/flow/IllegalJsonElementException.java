@@ -18,7 +18,7 @@ package io.jigson.core.flow;
 
 public final class IllegalJsonElementException extends RuntimeException {
 
-    IllegalJsonElementException(final String message) {
+    public IllegalJsonElementException(final String message) {
         super(message);
     }
 }

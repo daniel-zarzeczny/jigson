@@ -23,16 +23,15 @@ import com.google.gson.JsonObject;
 import io.jigson.config.Context;
 import io.jigson.json.pipe.JsonPipe;
 import io.jigson.pipe.UnitaryFlow;
-import io.jigson.utils.PathUtils;
 
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static io.jigson.utils.CriterionUtils.findCriterion;
 import static io.jigson.utils.CriterionUtils.isCriterion;
+import static io.jigson.utils.JsonUtils.getPropertyByPath;
 import static io.jigson.utils.PathUtils.findPropertyName;
 import static io.jigson.utils.PathUtils.isFunction;
-import static org.apache.commons.lang3.StringUtils.INDEX_NOT_FOUND;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class FetchFlow implements UnitaryFlow<JsonElement> {
@@ -80,41 +79,6 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
             return JsonPipe.from(currentElement).withContext(context).filter(criterion).get().orElse(JsonNull.INSTANCE);
         }
         return currentElement;
-    }
-
-    private JsonElement getPropertyByPath(final JsonObject jsonObject, final String path) {
-
-        final String propertyName = PathUtils.findPropertyName(path);
-        final JsonElement jsonElement = jsonObject.getAsJsonObject().get(propertyName);
-        final String rawIndex = PathUtils.findRawIndex(path);
-        final int index = PathUtils.findIndex(rawIndex);
-
-        if (index != INDEX_NOT_FOUND) {
-            if (!jsonElement.isJsonArray()) {
-                throw new IllegalJsonElementException("Not an instance of JsonArray!");
-            } else {
-                return jsonElement.getAsJsonArray().get(index);
-            }
-        } else if (PathUtils.isSlice(rawIndex)) {
-
-            final JsonArray jsonArray = jsonElement.getAsJsonArray();
-
-            final Slice slice = Slice.from(rawIndex);
-            final int startIndex = slice.getStartIndex();
-            final int endIndex = slice.getEndIndex(jsonArray.size());
-            final int step = slice.getStep();
-
-            final JsonArray accumulator = new JsonArray();
-            IntStream
-                    .iterate(startIndex, i -> i + step)
-                    .limit(endIndex)
-                    .filter(i -> i < endIndex)
-                    .mapToObj(jsonArray::get)
-                    .forEach(accumulator::add);
-            return accumulator;
-
-        }
-        return jsonElement;
     }
 
     private JsonElement fetchArray(final JsonArray jsonArray, final String currentPath) {

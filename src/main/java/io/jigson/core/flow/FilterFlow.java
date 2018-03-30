@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package io.jigson.json.pipe;
+package io.jigson.core.flow;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -34,7 +34,7 @@ public class FilterFlow implements UnitaryFlow<JsonElement> {
     private final JsonObjectFilter jsonObjectFilter;
     private Context context = Context.newContext();
 
-    FilterFlow(final String criterion) {
+    public FilterFlow(final String criterion) {
         this.criterion = criterion;
         this.jsonObjectFilter = JsonObjectFilter.INSTANCE;
     }

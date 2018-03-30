@@ -1,5 +1,6 @@
 package io.jigson.core;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.jigson.config.Context;
@@ -337,5 +338,86 @@ public class JigsonFetchTest {
 
         // when
         Jigson.from(peopleObject).parse(query);
+    }
+
+    @Test
+    public void shouldKeepElements_WhenTheyMeetSimpleCriterion() {
+
+        // given
+        final String query = "#people.address(city=Winterfell)";
+        final Context context = Context.newContext().filters().arrays().onlyMatching();
+
+        // when
+        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isJsonNull()).isFalse();
+        assertThat(result.isJsonObject()).isTrue();
+
+        final JsonArray people = result.getAsJsonObject().getAsJsonArray("people");
+        assertThat(people).isNotNull();
+        assertThat(people.isJsonNull()).isFalse();
+        assertThat(people.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldGiveJsonNull_WhenSimpleCriterionIsNotMet() {
+
+        // given
+        final String query = "#people.address(city=XYZ)";
+        final Context context = Context.newContext().filters().arrays().onlyMatching();
+
+        // when
+        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isJsonNull()).isTrue();
+    }
+
+    @Test
+    public void shouldKeepElement_WhenItMeetsComplexCriteria() {
+
+        // given
+        final String query = "#people(firstName=Sansa&&age!=10).address(city=Winterfell)";
+        final Context context = Context.newContext().filters().arrays().onlyMatching();
+
+        // when
+        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isJsonObject()).isTrue();
+
+        final JsonArray people = result.getAsJsonObject().getAsJsonArray("people");
+        assertThat(people).isNotNull();
+        assertThat(people.isJsonNull()).isFalse();
+        assertThat(people.size()).isEqualTo(1);
+
+        final JsonObject person = people.get(0).getAsJsonObject();
+        assertThat(person).isNotNull();
+        assertThat(person.isJsonNull()).isFalse();
+        assertThat(person.getAsJsonPrimitive("firstName").getAsString()).isEqualTo("Sansa");
+
+        final JsonObject address = person.getAsJsonObject("address");
+        assertThat(address).isNotNull();
+        assertThat(address.isJsonNull()).isFalse();
+        assertThat(address.getAsJsonPrimitive("city").getAsString()).isEqualTo("Winterfell");
+    }
+
+    @Test
+    public void shouldGiveJsonNull_WhenComplexCriterionIsNotMet() {
+
+        // given
+        final String query = "#people(firstName=Johnny||age!=10).address(city=XYZ)";
+        final Context context = Context.newContext().filters().arrays().onlyMatching();
+
+        // when
+        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isJsonNull()).isTrue();
     }
 }

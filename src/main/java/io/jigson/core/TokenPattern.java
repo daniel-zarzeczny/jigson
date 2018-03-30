@@ -24,6 +24,7 @@ final class TokenPattern {
     public static final String AT_SYMBOL = "\\@";
     public static final String DOT_SYMBOL = "\\.";
     public static final String QUESTION_MARK = "\\?";
+    public static final String HASH_SYMBOL = "\\#";
     public static final String QUOTE = "\\\"";
     public static final String COLON = "\\:";
     public static final String VARIABLE = "[a-zA-Z][a-zA-Z0-9_]*";

@@ -43,6 +43,7 @@ public final class TokenizerFactory {
                 .withPattern(TokenPattern.AT_SYMBOL, Token.AT_SYMBOL)
                 .withPattern(TokenPattern.DOT_SYMBOL, Token.DOT_SYMBOL)
                 .withPattern(TokenPattern.QUESTION_MARK, Token.QUESTION_MARK)
+                .withPattern(TokenPattern.HASH_SYMBOL, Token.HASH_SYMBOL)
                 .withPattern(TokenPattern.COLON, Token.COLON)
                 .withPattern(TokenPattern.QUOTE, Token.QUOTE)
                 .withPattern(TokenPattern.VARIABLE, Token.VARIABLE)

@@ -19,6 +19,7 @@ package io.jigson.json.pipe;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import io.jigson.config.Context;
+import io.jigson.core.flow.FilterFlow;
 import io.jigson.expression.predicate.Predicate;
 import io.jigson.json.expression.JsonPredicate;
 import io.jigson.pipe.*;

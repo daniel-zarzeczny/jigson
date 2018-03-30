@@ -3,6 +3,7 @@ package io.jigson.json.pipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.jigson.core.flow.FilterFlow;
 import org.junit.Before;
 import org.junit.Test;
 
