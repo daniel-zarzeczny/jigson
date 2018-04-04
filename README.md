@@ -10,10 +10,20 @@ I would like to thank all contributors of [Jayway JsonPath](https://github.com/j
 - `J` because JiGSON is a Java library
 - `GSON` because JiGSON strongly relies on [GSON](https://github.com/google/gson) as its abstraction of JSON document
 
+# <a id="query_modes"></a> JiGSON Filtering Modes
+
+When taking advantage of JiGSON you have available out of the box **3 filtering modes**:
+
+| Name | Prefix | Query Example | Description |
+| :------- | :----- | :----- | :----- |
+| [Fetch Mode](#fetch_mode) | `@` | `@people(firstName=John).age`| **Fetches** `JsonElement` specified by path (respecting applied filters) |
+| [Expression Mode](#expression_mode) | `?` | `?people(firstName=John).age.avg() < 20`| Resolves value of **logical expression** |
+| [Keep Mode](#keep_mode) | `#` | `#people(firstName=John).age`| Filters JSON document **keeping** only `JsonElements` meeting specified criterion (if any applied). All other elements aren't included in output `JsonElement` |
+
+
 # <a id="quick_start"></a> Quick Start
 
-As of now JiGSON supports data fetching and lets you to invoke an [aggregate functions](#aggregate_functions) on query result.
-Let's say we have JSON document as follows:
+Let's assume we have a JSON document as follows:
 
 ```json
 {
@@ -26,23 +36,25 @@ Let's say we have JSON document as follows:
 			}
 		},
 		{
-			"firstName": "Sansa ",
-			"lastName ": "Stark ",
+			"firstName": "Sansa",
+			"lastName ": "Stark",
 			"age": "20",
 			"address": {
-				"city ": "Winterfell "
+				"city ": "Winterfell"
 			}
 		}, {
-			"firstName": "Brandon ",
-			"lastName ": "Stark ",
+			"firstName": "Brandon",
+			"lastName ": "Stark",
 			"age": "16",
 			"address": {
-				"city ": "Winterfell "
+				"city ": "Winterfell"
 			}
 		}
 	]
 }
 ```
+
+## <a id="fetch_mode"></a> Fetch Mode - Query Examples
 
 | JiGSON Query | Result description |
 | :------- | :----- |
@@ -59,11 +71,88 @@ Let's say we have JSON document as follows:
 | `@people.age.max()` | Gets `age` of the oldest person of `people` array |
 | `@people[1::2].age.avg()` | Gets average `age` of every second person between indices `1` and `3` (exclusive) of `people` array |
 
-# <a id="examples"></a> Let's get hands dirty!
+## <a id="expression_mode"></a> Expression Mode - Query Examples
 
-> :exclamation: Every JiGSON query must start with `@` symbol.
-When JiGSON finds query preceded by `@` then it's interpreted
-as a **fetch query**. It implies looking for an attribute(s) meeting criterion (if any specified in query).
+| JiGSON Query | Result |
+| :------- | :----- |
+| `?people.count() = 4` | `false` wrapped in `JsonPrimitive` |
+| `?people(firstName=John&&age<100).age.avg() <= 50` | `true` wrapped in `JsonPrimitive`|
+| <code>?people(firstName=John&#124;&#124;lastName=Stark).address(city=Winterfell).count() != 3</code> | `true` wrapped in `JsonPrimitive`|
+| `?people[2](firstName=Brandon).address.city = Winterfell` | `true` wrapped in `JsonPrimitive`|
+
+### Known limitations :warning:
+* the left operand must **ALWAYS** be a JiGSON query
+* the right operand must **ALWAYS** be a raw value
+
+## <a id="keep_mode"></a> Keep Mode - Query Examples
+
+Keep Mode is of JiGSON's filtering strategy. It's about keeping in result object only these elements that:
+
+*	are a part of path JiGSON navigates through while interpreting a query, eg. `#people.firstName`
+> :bulb:
+When there is none person in `people` array or none person in `people` array has a non-null `firstName` then JiGSON returns `JsonNull`. If there are `people` having a non-null `firstName` then JiGSON returns root object (input object) containing only `people` with correct `firstName` attribute. So as the result of running above query against our JSON document we'd have received untouched input object:
+```json
+{
+	"people": [{
+			"firstName": "John",
+			"lastName": "Snow",
+			"age": "25",
+			"address": {
+				"city": "Castle Black"
+			}
+		},
+		{
+			"firstName": "Sansa",
+			"lastName ": "Stark",
+			"age": "20",
+			"address": {
+				"city ": "Winterfell"
+			}
+		}, {
+			"firstName": "Brandon",
+			"lastName ": "Stark",
+			"age": "16",
+			"address": {
+				"city ": "Winterfell"
+			}
+		}
+	]
+}
+```
+
+* meet a criterion/criteria (if any given), eg. `#people(age>=20).address(city=Winterfell)`
+> :bulb:
+This example should be understood same way as the above. The only difference is that
+we have some filters. The result there will be the same JSON document as the input one, except elements that don't meet criterion applied to them:
+```json
+{
+	"people": [
+		{
+			"firstName": "Sansa",
+			"lastName ": "Stark",
+			"age": "20",
+			"address": {
+				"city ": "Winterfell"
+			}
+		}
+	]
+}
+```
+
+More query example:
+
+| JiGSON Query | Result description |
+| :------- | :----- |
+| `#people` | Gets root `JsonObject` if attribute `people` exists |
+| `#people.firstName` | Gets root `JsonObject` keeping only these `people` having any `firstName` |
+| `#people(firstName=John).age` | Gets root `JsonObject` keeping only these `people` having `firstName=John` and any `age` |
+| `#people(firstName=John&&age<25).lastName` |  Gets root `JsonObject` keeping only these `people` having `firstName=John` and `age<25`|
+| `#people(age>=20).address(city=Winterfell)` |  Gets root `JsonObject` keeping `people` having `age>=20` and `city=Winterfell` |
+
+### Known limitations :warning:
+* refering to array element(s) using indices or slices is not supported so far
+
+# <a id="examples"></a> Let's get hands dirty!
 
 ## Query for an Attribute  - `parse()`
 
@@ -185,6 +274,7 @@ When running JiGSON aggregate functions it's important to understand their resul
 | `sum()` | Resolves sum of `JsonElement` | `BigDecimal` wrapped in `JsonPrimitive`|
 | `avg()` | Resolves average value of `JsonElement` | `BigDecimal` wrapped in `JsonPrimitive`|
 | `count()` | Resolves count of `JsonElement` | `Integer` wrapped in `JsonPrimitive`|
+| `size()` | An alias for `count()` | `Integer` wrapped in `JsonPrimitive`|
 | `length()` | Resolves length of `JsonElement` | `Integer` wrapped in `JsonPrimitive`|
 
 ## Behaviour details
@@ -236,6 +326,10 @@ When running JiGSON aggregate functions it's important to understand their resul
 | `JsonObject` | Always `1` |
 | `JsonArray` | Size of array |
 
+### Size()
+
+It's an alias for `count()`.
+
 ### Length()
 
 | JsonElement | Result |
@@ -274,7 +368,7 @@ JiGSON varies **comparison and logical operators**. Comparison operators are use
 | <code>&#124;&#124;</code> | OR | <code>firstName=John&#124;&#124;age>20</code> |
 
 ### Known limitations :warning:
-At most one logical operator might be used in a single filter expression. In other words you must use only one `&&` or `||` in your expressions.
+At most one logical operator might be used in a single filter expression. In other words you must use at most one `&&` or `||` in your expressions.
 
 So these are NOT supported expression:
 * `age>20||firstName=John||lastName=Snow`
