@@ -18,7 +18,6 @@ package io.jigson.core.flow;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import io.jigson.config.Context;
 import io.jigson.core.IllegalQueryException;
 import io.jigson.core.Token;
 import io.jigson.core.TokenizerFactory;
@@ -44,11 +43,9 @@ public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
     private static final int INDEX_ONE = 1;
 
     private final String trimmedQuery;
-    private final Context context;
 
-    public ExpressionFlow(final String trimmedQuery, final Context context) {
+    public ExpressionFlow(final String trimmedQuery) {
         this.trimmedQuery = trimmedQuery;
-        this.context = context;
     }
 
     @Override
@@ -91,7 +88,7 @@ public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
     private String getLeftOperand(final JsonElement jsonElement, final int operatorIndex) {
         final String fetchQuery = trimmedQuery.substring(INDEX_ONE, operatorIndex).trim();
         final Query query = Query.from(fetchQuery);
-        final String leftOperandValue = new FetchFlow(query, context).flow(jsonElement).getAsString();
+        final String leftOperandValue = new FetchFlow(query).flow(jsonElement).getAsString();
 
         if (!StringUtils.isNumeric(leftOperandValue)) {
             throw new IllegalArgumentException("Left operand must be numeric!");

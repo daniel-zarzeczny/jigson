@@ -14,57 +14,65 @@
  *    limitations under the License.
  */
 
-package io.jigson.core.flow;
+package io.jigson.core.plugin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
-import io.jigson.pipe.Flow;
+import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class LengthFlow implements Flow<JsonElement, JsonPrimitive> {
+public class CountPlugin implements JsonPlugin {
 
-    static final LengthFlow INSTANCE = new LengthFlow();
-    private final static JsonPrimitive ZERO = asJsonPrimitive(BigDecimal.ZERO.intValue());
+    public static final CountPlugin INSTANCE = new CountPlugin();
+    private static final String KEY = "count";
 
-    private static JsonPrimitive asJsonPrimitive(final int value) {
-        return new JsonPrimitive(value);
+    private CountPlugin() {
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override
     public JsonPrimitive flow(final JsonElement jsonElement) {
 
-        final Optional<JsonElement> length =
+        final Optional<JsonElement> count =
                 ProcessingPipe
                         .from(jsonElement)
-                        .whenNullOrJsonNull(this::handleNullOrJsonNull)
+                        .whenNullOrJsonNull(this::handleNull)
                         .whenJsonPrimitive(this::handlePrimitive)
                         .whenJsonObject(this::handleObject)
                         .whenJsonArray(this::handleArray)
                         .process()
                         .get();
-        return length
+
+        return count
                 .map(JsonElement::getAsJsonPrimitive)
-                .orElse(ZERO);
+                .orElse(asPrimitive(BigDecimal.ZERO.intValue()));
     }
 
-    private JsonPrimitive handleNullOrJsonNull(final JsonElement jsonElement) {
-        return ZERO;
+    private JsonPrimitive handleNull(final JsonElement jsonElement) {
+        return asPrimitive(BigDecimal.ZERO.intValue());
     }
 
     private JsonPrimitive handlePrimitive(final JsonElement jsonElement) {
-        final int length = jsonElement.getAsString().length();
-        return asJsonPrimitive(length);
+        return asPrimitive(BigDecimal.ONE.intValue());
     }
 
     private JsonPrimitive handleObject(final JsonElement jsonElement) {
-        throw new IllegalJsonElementException("Cannot execute length() on JsonObject!");
-
+        return asPrimitive(BigDecimal.ONE.intValue());
     }
 
     private JsonPrimitive handleArray(final JsonElement jsonElement) {
-        return CountFlow.INSTANCE.flow(jsonElement);
+        final int arraySize = jsonElement.getAsJsonArray().size();
+        return asPrimitive(arraySize);
+    }
+
+    private JsonPrimitive asPrimitive(final int value) {
+        return new JsonPrimitive(value);
     }
 }

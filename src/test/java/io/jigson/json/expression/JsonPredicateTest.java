@@ -1,6 +1,7 @@
 package io.jigson.json.expression;
 
 import com.google.gson.JsonObject;
+import io.jigson.core.JigsonConfigHolder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +16,7 @@ public class JsonPredicateTest {
     @Before
     public void init() {
         this.jsonObject = getMapper().fromJson(JSON, JsonObject.class);
+        JigsonConfigHolder.init();
     }
 
     @Test

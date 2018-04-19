@@ -18,7 +18,6 @@ package io.jigson.json.pipe;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import io.jigson.config.Context;
 import io.jigson.core.flow.FilterFlow;
 import io.jigson.expression.predicate.Predicate;
 import io.jigson.json.expression.JsonPredicate;
@@ -32,7 +31,6 @@ import static io.jigson.utils.JsonUtils.getMapper;
 public class JsonPipe {
 
     private final Source<JsonElement> source;
-    private Context context = Context.newContext();
 
     private JsonPipe(final Source<JsonElement> source) {
         this.source = source;
@@ -40,11 +38,6 @@ public class JsonPipe {
 
     public static JsonPipe from(final JsonElement jsonElement) {
         return new JsonPipe(Source.of(jsonElement));
-    }
-
-    public JsonPipe withContext(final Context context) {
-        this.context = context;
-        return this;
     }
 
     public <R> Sink<R> flush(final Flow<JsonElement, R> flow) {
@@ -73,7 +66,7 @@ public class JsonPipe {
     }
 
     public JsonPipe filter(final String criterion) {
-        final FilterFlow filterFlow = new FilterFlow(criterion).withContext(context);
+        final FilterFlow filterFlow = new FilterFlow(criterion);
         return map(filterFlow);
     }
 
@@ -82,7 +75,7 @@ public class JsonPipe {
     }
 
     public boolean match(final String criterion) {
-        final JsonPredicate predicate = JsonPredicate.from(criterion).withContext(context);
+        final JsonPredicate predicate = JsonPredicate.from(criterion);
         return match(predicate);
     }
 

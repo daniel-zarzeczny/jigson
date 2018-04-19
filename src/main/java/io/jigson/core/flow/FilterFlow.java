@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
+import io.jigson.core.JigsonConfigHolder;
 import io.jigson.json.filter.JsonArrayFilter;
 import io.jigson.json.filter.JsonObjectFilter;
 import io.jigson.json.filter.strategy.JsonFilterStrategyFactory;
@@ -32,16 +32,10 @@ public class FilterFlow implements UnitaryFlow<JsonElement> {
 
     private final String criterion;
     private final JsonObjectFilter jsonObjectFilter;
-    private Context context = Context.newContext();
 
     public FilterFlow(final String criterion) {
         this.criterion = criterion;
         this.jsonObjectFilter = JsonObjectFilter.INSTANCE;
-    }
-
-    public FilterFlow withContext(final Context context) {
-        this.context = context;
-        return this;
     }
 
     @Override
@@ -53,11 +47,11 @@ public class FilterFlow implements UnitaryFlow<JsonElement> {
         if (Objects.isNull(jsonElement) || jsonElement.isJsonNull()) {
             return JsonNull.INSTANCE;
         } else if (jsonElement.isJsonObject()) {
-            return jsonObjectFilter.filter((JsonObject) jsonElement, criterion, context);
+            return jsonObjectFilter.filter((JsonObject) jsonElement, criterion);
         } else if (jsonElement.isJsonArray()) {
-            final JsonArrayFilter.Strategy filterStrategy = context.filters().arrays().strategy();
+            final JsonArrayFilter.Strategy filterStrategy = JigsonConfigHolder.get().filters().arrays().strategy();
             final JsonArrayFilter jsonArrayFilter = JsonFilterStrategyFactory.createJsonArrayFilter(filterStrategy);
-            return jsonArrayFilter.filter((JsonArray) jsonElement, criterion, context);
+            return jsonArrayFilter.filter((JsonArray) jsonElement, criterion);
         } else {
             return jsonElement;
         }

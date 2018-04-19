@@ -17,13 +17,7 @@
 package io.jigson.json.filter;
 
 import com.google.gson.JsonElement;
-import io.jigson.config.Context;
 
 public interface JsonFilter<T extends JsonElement, R> {
-
-    default R filter(T jsonElement, String criterion) {
-        return filter(jsonElement, criterion, Context.newContext());
-    }
-
-    R filter(T jsonElement, String criterion, Context context);
+    R filter(T jsonElement, String criterion);
 }

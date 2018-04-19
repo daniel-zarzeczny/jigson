@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import io.jigson.config.Context;
+import io.jigson.core.JigsonConfigHolder;
 import io.jigson.core.Token;
 import io.jigson.core.TokenizerFactory;
 import io.jigson.expression.ExpressionFactory;
@@ -46,8 +46,6 @@ public class JsonPredicate implements Predicate<JsonElement> {
     private final String operator;
     private final String propertyValue;
 
-    private Context context = Context.newContext();
-
     private JsonPredicate(final String criterion) {
         this.criterion = criterion;
         final List<String> tokens = getTokens();
@@ -58,11 +56,6 @@ public class JsonPredicate implements Predicate<JsonElement> {
 
     public static JsonPredicate from(final String criterion) {
         return new JsonPredicate(criterion);
-    }
-
-    public JsonPredicate withContext(final Context context) {
-        this.context = context;
-        return this;
     }
 
     @Override
@@ -87,9 +80,9 @@ public class JsonPredicate implements Predicate<JsonElement> {
     }
 
     private Boolean accept(final JsonArray jsonArray) {
-        final JsonArrayFilter.Strategy filterStrategy = context.filters().arrays().strategy();
+        final JsonArrayFilter.Strategy filterStrategy = JigsonConfigHolder.get().filters().arrays().strategy();
         final JsonArrayFilter filter = JsonFilterStrategyFactory.createJsonArrayFilter(filterStrategy);
-        final JsonElement result = filter.filter(jsonArray, criterion, context);
+        final JsonElement result = filter.filter(jsonArray, criterion);
         final boolean isArray = result.isJsonArray();
         return isArray && result.getAsJsonArray().size() > 0;
     }

@@ -14,33 +14,39 @@
  *    limitations under the License.
  */
 
-package io.jigson.core.flow;
+package io.jigson.core.plugin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import io.jigson.config.Context;
-import io.jigson.pipe.Flow;
+import io.jigson.core.JigsonConfig;
+import io.jigson.core.JigsonConfigHolder;
+import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class AverageFlow implements Flow<JsonElement, JsonPrimitive> {
+public class AveragePlugin implements JsonPlugin {
+
+    public static final AveragePlugin INSTANCE = new AveragePlugin();
+    private static final String KEY = "avg";
 
     private final int precision;
     private final int roundingMode;
 
-    private AverageFlow(final Context context) {
-        this.precision = context.numbers().precision();
-        this.roundingMode = context.numbers().roundingMode();
+    private AveragePlugin() {
+        final JigsonConfig config = JigsonConfigHolder.get();
+        this.precision = config.numbers().precision();
+        this.roundingMode = config.numbers().roundingMode();
     }
 
-    static AverageFlow withContext(final Context context) {
-        return new AverageFlow(context);
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override
     public JsonPrimitive flow(final JsonElement jsonElement) {
-        final BigDecimal sum = SumFlow.INSTANCE.flow(jsonElement).getAsBigDecimal();
+        final BigDecimal sum = SumPlugin.INSTANCE.flow(jsonElement).getAsBigDecimal();
         if (Objects.nonNull(jsonElement) && jsonElement.isJsonArray()) {
             final BigDecimal divisor = new BigDecimal(jsonElement.getAsJsonArray().size());
             final BigDecimal average = sum.divide(divisor, precision, roundingMode);

@@ -17,8 +17,8 @@
 package io.jigson.utils;
 
 import com.google.gson.*;
-import io.jigson.core.flow.IllegalJsonElementException;
 import io.jigson.core.flow.Slice;
+import io.jigson.core.plugin.IllegalJsonElementException;
 
 import java.util.Objects;
 import java.util.Optional;

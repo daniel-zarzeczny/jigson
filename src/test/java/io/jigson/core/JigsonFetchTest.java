@@ -3,8 +3,7 @@ package io.jigson.core;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
-import io.jigson.core.flow.IllegalJsonElementException;
+import io.jigson.core.plugin.IllegalJsonElementException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,17 +30,18 @@ public class JigsonFetchTest {
     public void init() {
         this.personObject = getMapper().fromJson(PERSON_JSON, JsonObject.class);
         this.peopleObject = getMapper().fromJson(PEOPLE_JSON, JsonObject.class);
+        JigsonConfigHolder.init();
     }
 
     @Test
     public void shouldFetchArrayOfPrimitives_WhenNoneCriterionApplied() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people.address.city";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -53,12 +53,12 @@ public class JigsonFetchTest {
     public void shouldFindElement_WhenIndexOfArrayIsGiven() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people[0].address.city";
         final String expectedCity = "Castle Black";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -70,22 +70,22 @@ public class JigsonFetchTest {
     public void shouldThrowException_WhenIndexOutOfArray() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people[10].address.city";
 
         // when
-        Jigson.from(peopleObject).withContext(context).parse(query);
+        Jigson.from(peopleObject).withConfig(config).parse(query);
     }
 
     @Test
     public void shouldTakeElements_WhenStartAndEndSliceGiven() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people[0:2]";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -97,12 +97,12 @@ public class JigsonFetchTest {
     public void shouldTakeElements_WhenStartAndStepIsGiven() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final JsonObject citiesObject = getMapper().fromJson(CITIES_JSON, JsonObject.class);
         final String query = "@cities[1::2]";
 
         // when
-        final JsonElement result = Jigson.from(citiesObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(citiesObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -114,11 +114,11 @@ public class JigsonFetchTest {
     public void shouldSumAges_WhenTheyAreNumericValues() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people.age.sum()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -130,11 +130,11 @@ public class JigsonFetchTest {
     public void shouldCountAges_WhenTheyAreAggregatedInArray() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people.age.count()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -146,15 +146,15 @@ public class JigsonFetchTest {
     public void shouldGetAverageAge_WhenTheyAgesAreAggregatedInArray() {
 
         // given
-        final Context context =
-                Context.newContext()
+        final JigsonConfig config =
+                JigsonConfig.newInstance()
                         .filters().arrays().keepMatchingAndPrimitives()
                         .numbers().withPrecisionAnd(2).withRoundingMode(BigDecimal.ROUND_HALF_UP);
         final String query = "@people.age.avg()";
         final BigDecimal expectedAvg = new BigDecimal("22.50");
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -166,11 +166,11 @@ public class JigsonFetchTest {
     public void shouldSumAges_WhenCriterionIsApplied() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(firstName=Sansa&&age!=25).age.sum()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -182,11 +182,11 @@ public class JigsonFetchTest {
     public void shouldCountAges_WhenCriterionIsApplied() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(firstName=John&&age>20).age.count()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -198,11 +198,11 @@ public class JigsonFetchTest {
     public void shouldFindMinAge_WhenCriterionIsApplied() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(age>10).age.min()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -214,11 +214,11 @@ public class JigsonFetchTest {
     public void shouldFindMaxAge_WhenCriterionIsApplied() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(age<=100).age.max()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -230,33 +230,33 @@ public class JigsonFetchTest {
     public void shouldProduceException_WhenExpectingMaxButNoneElementMeetsCondition() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(age>=100).age.max()";
 
         // when
-        Jigson.from(peopleObject).withContext(context).parse(query);
+        Jigson.from(peopleObject).withConfig(config).parse(query);
     }
 
     @Test(expected = IllegalJsonElementException.class)
     public void shouldProduceException_WhenExpectingMinButNoneElementMeetsCondition() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().keepMatchingAndPrimitives();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().keepMatchingAndPrimitives();
         final String query = "@people(age>=100).age.min()";
 
         // when
-        Jigson.from(peopleObject).withContext(context).parse(query);
+        Jigson.from(peopleObject).withConfig(config).parse(query);
     }
 
     @Test
     public void shouldFindLength_WhenJsonElementIsArray() {
 
         // given
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
         final String query = "@people(firstName=Sansa).age.length()";
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -324,10 +324,10 @@ public class JigsonFetchTest {
 
         // given
         final String query = "?people(firstName=John).lastName > 5";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
-        Jigson.from(peopleObject).withContext(context).parse(query);
+        Jigson.from(peopleObject).withConfig(config).parse(query);
     }
 
     @Test(expected = IllegalQueryException.class)
@@ -345,10 +345,10 @@ public class JigsonFetchTest {
 
         // given
         final String query = "#people.address(city=Winterfell)";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -366,10 +366,10 @@ public class JigsonFetchTest {
 
         // given
         final String query = "#people.address(city=XYZ)";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -381,10 +381,10 @@ public class JigsonFetchTest {
 
         // given
         final String query = "#people(firstName=Sansa&&age!=10).address(city=Winterfell)";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();
@@ -411,10 +411,10 @@ public class JigsonFetchTest {
 
         // given
         final String query = "#people(firstName=Johnny||age!=10).address(city=XYZ)";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
-        final JsonElement result = Jigson.from(peopleObject).withContext(context).parse(query);
+        final JsonElement result = Jigson.from(peopleObject).withConfig(config).parse(query);
 
         // then
         assertThat(result).isNotNull();

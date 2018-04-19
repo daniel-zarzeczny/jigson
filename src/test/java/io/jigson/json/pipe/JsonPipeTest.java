@@ -18,7 +18,8 @@ package io.jigson.json.pipe;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
+import io.jigson.core.JigsonConfig;
+import io.jigson.core.JigsonConfigHolder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +40,7 @@ public class JsonPipeTest {
     public void init() {
         this.jsonObject = getMapper().fromJson(JSON_OBJECT, JsonObject.class);
         this.jsonArray = getMapper().fromJson(JSON_ARRAY, JsonArray.class);
+        JigsonConfigHolder.init();
     }
 
     @Test
@@ -72,10 +74,11 @@ public class JsonPipeTest {
 
         // given
         final String criterion = "firstName=John";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
+        JigsonConfigHolder.set(config);
 
         // when
-        final boolean match = JsonPipe.from(jsonArray).withContext(context).match(criterion);
+        final boolean match = JsonPipe.from(jsonArray).match(criterion);
 
         // then
         assertThat(match).isTrue();
@@ -86,10 +89,11 @@ public class JsonPipeTest {
 
         // given
         final String criterion = "firstName=Johnny";
-        final Context context = Context.newContext().filters().arrays().onlyMatching();
+        final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
+        JigsonConfigHolder.set(config);
 
         // when
-        final boolean match = JsonPipe.from(jsonArray).withContext(context).match(criterion);
+        final boolean match = JsonPipe.from(jsonArray).match(criterion);
 
         // then
         assertThat(match).isFalse();

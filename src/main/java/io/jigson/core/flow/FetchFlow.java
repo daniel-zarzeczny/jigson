@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
+import io.jigson.core.plugin.PluginDispatcher;
 import io.jigson.json.pipe.JsonPipe;
 import io.jigson.pipe.UnitaryFlow;
 
@@ -37,11 +37,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class FetchFlow implements UnitaryFlow<JsonElement> {
 
     private final Query query;
-    private final Context context;
 
-    public FetchFlow(final Query query, final Context context) {
+    public FetchFlow(final Query query) {
         this.query = query.fork();
-        this.context = context;
     }
 
     public JsonElement flow(final JsonElement jsonElement) {
@@ -51,7 +49,7 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
 
         while (isNotBlank(currentPath)) {
             if (isFunction(currentPath)) {
-                currentElement = FunctionFlowDispatcher.dispatch(currentElement, currentPath, context);
+                currentElement = PluginDispatcher.dispatch(currentElement, currentPath);
             } else {
                 currentElement = fetch(currentElement, currentPath);
             }
@@ -76,7 +74,7 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
         final JsonElement currentElement = getPropertyByPath(jsonObject, currentPath);
         final String criterion = findCriterion(currentPath);
         if (isCriterion(criterion)) {
-            return JsonPipe.from(currentElement).withContext(context).filter(criterion).get().orElse(JsonNull.INSTANCE);
+            return JsonPipe.from(currentElement).filter(criterion).get().orElse(JsonNull.INSTANCE);
         }
         return currentElement;
     }
@@ -96,7 +94,7 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
                 .forEach(accumulator::add);
 
         if (isCriterion(criterion)) {
-            return JsonPipe.from(accumulator).withContext(context).filter(criterion).get().orElse(JsonNull.INSTANCE);
+            return JsonPipe.from(accumulator).filter(criterion).get().orElse(JsonNull.INSTANCE);
         }
         return accumulator;
     }

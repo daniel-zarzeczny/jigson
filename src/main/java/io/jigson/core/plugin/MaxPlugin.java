@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package io.jigson.core.flow;
+package io.jigson.core.plugin;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
-import io.jigson.pipe.Flow;
+import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -31,9 +31,15 @@ import static io.jigson.utils.NumberUtils.MAX_VALUE;
 import static io.jigson.utils.NumberUtils.MIN_VALUE;
 import static io.jigson.utils.StreamUtils.not;
 
-public class MinFlow implements Flow<JsonElement, JsonPrimitive> {
+public class MaxPlugin implements JsonPlugin {
 
-    static final MinFlow INSTANCE = new MinFlow();
+    public static final MaxPlugin INSTANCE = new MaxPlugin();
+    private static final String KEY = "max";
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
     @Override
     public JsonPrimitive flow(final JsonElement jsonElement) {
@@ -49,11 +55,11 @@ public class MinFlow implements Flow<JsonElement, JsonPrimitive> {
                         .get();
         return min
                 .map(JsonElement::getAsJsonPrimitive)
-                .orElse(asJsonPrimitive(MIN_VALUE));
+                .orElse(asJsonPrimitive(MAX_VALUE));
     }
 
     private JsonPrimitive handleNull(final JsonElement jsonElement) {
-        throw new IllegalJsonElementException("Cannot execute min() on JsonNull!");
+        throw new IllegalJsonElementException("Cannot execute max() on JsonNull!");
     }
 
     private JsonPrimitive handlePrimitive(final JsonElement jsonElement) {
@@ -61,7 +67,7 @@ public class MinFlow implements Flow<JsonElement, JsonPrimitive> {
     }
 
     private JsonPrimitive handleObject(final JsonElement jsonElement) {
-        throw new IllegalJsonElementException("Cannot execute min() on JsonObject!");
+        throw new IllegalJsonElementException("Cannot execute max() on JsonObject!");
     }
 
     private JsonPrimitive handleArray(final JsonElement jsonElement) {
@@ -73,7 +79,7 @@ public class MinFlow implements Flow<JsonElement, JsonPrimitive> {
                         .filter(not(JsonElement::isJsonNull))
                         .map(this::flow)
                         .map(JsonPrimitive::getAsBigDecimal)
-                        .reduce(MAX_VALUE, BigDecimal::min);
+                        .reduce(MIN_VALUE, BigDecimal::max);
         return asJsonPrimitive(min);
     }
 

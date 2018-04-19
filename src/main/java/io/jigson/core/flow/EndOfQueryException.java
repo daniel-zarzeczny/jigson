@@ -16,5 +16,5 @@
 
 package io.jigson.core.flow;
 
-public class EndOfQueryException extends RuntimeException {
+class EndOfQueryException extends RuntimeException {
 }

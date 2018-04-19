@@ -14,27 +14,37 @@
  *    limitations under the License.
  */
 
-package io.jigson.core.flow;
+package io.jigson.core.plugin;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
-import io.jigson.pipe.Flow;
+import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
-public class CountFlow implements Flow<JsonElement, JsonPrimitive> {
+import static io.jigson.utils.NumberUtils.MAX_VALUE;
+import static io.jigson.utils.NumberUtils.MIN_VALUE;
+import static io.jigson.utils.StreamUtils.not;
 
-    static final CountFlow INSTANCE = new CountFlow();
+public class MinPlugin implements JsonPlugin {
 
-    private CountFlow() {
+    public static final MinPlugin INSTANCE = new MinPlugin();
+    private static final String KEY = "min";
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override
     public JsonPrimitive flow(final JsonElement jsonElement) {
 
-        final Optional<JsonElement> count =
+        final Optional<JsonElement> min =
                 ProcessingPipe
                         .from(jsonElement)
                         .whenNullOrJsonNull(this::handleNull)
@@ -43,30 +53,37 @@ public class CountFlow implements Flow<JsonElement, JsonPrimitive> {
                         .whenJsonArray(this::handleArray)
                         .process()
                         .get();
-
-        return count
+        return min
                 .map(JsonElement::getAsJsonPrimitive)
-                .orElse(asPrimitive(BigDecimal.ZERO.intValue()));
+                .orElse(asJsonPrimitive(MIN_VALUE));
     }
 
     private JsonPrimitive handleNull(final JsonElement jsonElement) {
-        return asPrimitive(BigDecimal.ZERO.intValue());
+        throw new IllegalJsonElementException("Cannot execute min() on JsonNull!");
     }
 
     private JsonPrimitive handlePrimitive(final JsonElement jsonElement) {
-        return asPrimitive(BigDecimal.ONE.intValue());
+        return asJsonPrimitive(jsonElement.getAsBigDecimal());
     }
 
     private JsonPrimitive handleObject(final JsonElement jsonElement) {
-        return asPrimitive(BigDecimal.ONE.intValue());
+        throw new IllegalJsonElementException("Cannot execute min() on JsonObject!");
     }
 
     private JsonPrimitive handleArray(final JsonElement jsonElement) {
-        final int arraySize = jsonElement.getAsJsonArray().size();
-        return asPrimitive(arraySize);
+        final JsonArray jsonArray = jsonElement.getAsJsonArray();
+        final BigDecimal min =
+                IntStream.range(0, jsonArray.size())
+                        .mapToObj(jsonArray::get)
+                        .filter(Objects::nonNull)
+                        .filter(not(JsonElement::isJsonNull))
+                        .map(this::flow)
+                        .map(JsonPrimitive::getAsBigDecimal)
+                        .reduce(MAX_VALUE, BigDecimal::min);
+        return asJsonPrimitive(min);
     }
 
-    private JsonPrimitive asPrimitive(final int value) {
+    private JsonPrimitive asJsonPrimitive(final BigDecimal value) {
         return new JsonPrimitive(value);
     }
 }

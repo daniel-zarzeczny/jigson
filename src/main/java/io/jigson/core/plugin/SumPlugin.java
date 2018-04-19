@@ -14,23 +14,29 @@
  *    limitations under the License.
  */
 
-package io.jigson.core.flow;
+package io.jigson.core.plugin;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
-import io.jigson.pipe.Flow;
+import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-public class SumFlow implements Flow<JsonElement, JsonPrimitive> {
+public class SumPlugin implements JsonPlugin {
 
-    static final SumFlow INSTANCE = new SumFlow();
+    public static final SumPlugin INSTANCE = new SumPlugin();
+    private static final String KEY = "sum";
 
-    private SumFlow() {
+    private SumPlugin() {
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override

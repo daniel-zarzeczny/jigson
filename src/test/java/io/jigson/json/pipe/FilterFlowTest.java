@@ -3,6 +3,7 @@ package io.jigson.json.pipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.jigson.core.JigsonConfigHolder;
 import io.jigson.core.flow.FilterFlow;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ public class FilterFlowTest {
     public void init() {
         this.jsonObject = getMapper().fromJson(JSON_OBJECT, JsonObject.class);
         this.jsonArray = getMapper().fromJson(JSON_ARRAY, JsonArray.class);
+        JigsonConfigHolder.init();
     }
 
     @Test

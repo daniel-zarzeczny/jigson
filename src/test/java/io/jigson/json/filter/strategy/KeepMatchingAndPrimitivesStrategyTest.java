@@ -2,6 +2,7 @@ package io.jigson.json.filter.strategy;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import io.jigson.core.JigsonConfigHolder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ public class KeepMatchingAndPrimitivesStrategyTest {
     public void init() {
         this.jsonArray = getMapper().fromJson(JSON_ARRAY, JsonArray.class);
         this.jsonArrayWithPrimitives = getMapper().fromJson(JSON_ARRAY_WITH_PRIMITIVES, JsonArray.class);
+        JigsonConfigHolder.init();
     }
 
     @Test

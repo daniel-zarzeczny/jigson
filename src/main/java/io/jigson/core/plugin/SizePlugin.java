@@ -1,5 +1,5 @@
 /*
- *    Copyright 2018 Daniel Zarzeczny
+ *    Copyright 2018 the original author or authors
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,24 +13,32 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-package io.jigson.json.filter;
+package io.jigson.core.plugin;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import io.jigson.json.expression.JsonExpression;
+import com.google.gson.JsonPrimitive;
+import io.jigson.plugin.JsonPlugin;
 
-public class JsonObjectFilter implements JsonFilter<JsonObject, JsonElement> {
+/**
+ * Represents a flow responsible for resolving size of {@link JsonElement}
+ *
+ * @author Daniel Zarzeczny
+ */
+public class SizePlugin implements JsonPlugin {
 
-    public static final JsonObjectFilter INSTANCE = new JsonObjectFilter();
+    public static final SizePlugin INSTANCE = new SizePlugin();
+    private static final String KEY = "size";
 
-    private JsonObjectFilter() {
+    private SizePlugin() {
     }
 
     @Override
-    public JsonElement filter(final JsonObject jsonObject, final String criterion) {
-        final Boolean isAccepted = JsonExpression.from(jsonObject, criterion).interpret();
-        return isAccepted ? jsonObject : JsonNull.INSTANCE;
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement) {
+        return CountPlugin.INSTANCE.flow(jsonElement);
     }
 }

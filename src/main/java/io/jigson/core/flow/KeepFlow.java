@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
 import io.jigson.json.pipe.JsonPipe;
 import io.jigson.pipe.UnitaryFlow;
 import io.jigson.utils.CriterionUtils;
@@ -18,11 +17,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class KeepFlow implements UnitaryFlow<JsonElement> {
 
     private final Query query;
-    private final Context context;
 
-    public KeepFlow(final Query query, final Context context) {
+    public KeepFlow(final Query query) {
         this.query = query.fork();
-        this.context = context;
     }
 
     public JsonElement flow(final JsonElement jsonElement) {
@@ -72,7 +69,6 @@ public class KeepFlow implements UnitaryFlow<JsonElement> {
 
             final JsonElement resultElement =
                     JsonPipe.from(currentElement)
-                            .withContext(context)
                             .filter(criterion)
                             .get()
                             .orElse(JsonNull.INSTANCE);

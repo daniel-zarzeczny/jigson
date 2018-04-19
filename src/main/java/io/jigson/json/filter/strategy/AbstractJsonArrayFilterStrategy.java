@@ -20,7 +20,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import io.jigson.config.Context;
 import io.jigson.json.filter.JsonArrayFilter;
 import io.jigson.json.filter.JsonObjectFilter;
 
@@ -34,14 +33,14 @@ abstract class AbstractJsonArrayFilterStrategy implements JsonArrayFilter {
         this.jsonObjectFilter = JsonObjectFilter.INSTANCE;
     }
 
-    JsonElement filterWithRouting(final JsonElement jsonElement, final String criterion, final Context context) {
+    JsonElement filterWithRouting(final JsonElement jsonElement, final String criterion) {
         if (jsonElement.isJsonPrimitive()) {
             // primitive is just passed through by default (no filtering)
             return jsonElement;
         } else if (jsonElement.isJsonObject()) {
-            return jsonObjectFilter.filter((JsonObject) jsonElement, criterion, context);
+            return jsonObjectFilter.filter((JsonObject) jsonElement, criterion);
         } else if (jsonElement.isJsonArray()) {
-            return filter((JsonArray) jsonElement, criterion, context);
+            return filter((JsonArray) jsonElement, criterion);
         } else {
             return JsonNull.INSTANCE;
         }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2018 the original author or authors
+ *    Copyright 2018 Daniel Zarzeczny
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,26 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package io.jigson.core.flow;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import io.jigson.pipe.Flow;
+package io.jigson.core.plugin;
 
-/**
- * Represents a flow responsible for resolving size of {@link JsonElement}
- *
- * @author Daniel Zarzeczny
- */
-public class SizeFlow implements Flow<JsonElement, JsonPrimitive> {
+public final class IllegalJsonElementException extends RuntimeException {
 
-    static SizeFlow INSTANCE = new SizeFlow();
-
-    private SizeFlow() {
-    }
-
-    @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
-        return CountFlow.INSTANCE.flow(jsonElement);
+    public IllegalJsonElementException(final String message) {
+        super(message);
     }
 }

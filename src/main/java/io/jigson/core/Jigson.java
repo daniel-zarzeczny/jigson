@@ -18,7 +18,6 @@ package io.jigson.core;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import io.jigson.config.Context;
 import io.jigson.core.flow.ExpressionFlow;
 import io.jigson.core.flow.FetchFlow;
 import io.jigson.core.flow.KeepFlow;
@@ -33,19 +32,25 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public final class Jigson {
 
     private final JsonElement jsonElement;
-    private Context context = Context.newContext();
+    private final PluginsConfig pluginsConfig = PluginsConfig.newConfig();
 
     private Jigson(final JsonElement jsonElement) {
         this.jsonElement = jsonElement;
+        this.pluginsConfig.registerEmbeddedPlugins();
+        JigsonConfigHolder.init();
     }
 
     public static Jigson from(final JsonElement jsonElement) {
         return new Jigson(jsonElement);
     }
 
-    public Jigson withContext(final Context context) {
-        this.context = context;
+    public Jigson withConfig(final JigsonConfig config) {
+        JigsonConfigHolder.set(config);
         return this;
+    }
+
+    public PluginsConfig pluginsConfig() {
+        return pluginsConfig;
     }
 
     public JsonElement parse(final String rawQuery) {
@@ -72,22 +77,23 @@ public final class Jigson {
         throw new UnexpectedSymbolException();
     }
 
-    public JsonElement fetch(final Query query) {
-        final FetchFlow flow = new FetchFlow(query, context);
-        return JsonPipe.from(jsonElement).withContext(context).flush(flow).get();
+    private JsonElement fetch(final Query query) {
+        final FetchFlow flow = new FetchFlow(query);
+        return JsonPipe.from(jsonElement).flush(flow).get();
     }
 
     private JsonElement keep(final Query query) {
-        return new KeepFlow(query, context).flow(jsonElement);
+        return new KeepFlow(query).flow(jsonElement);
     }
 
     private JsonPrimitive expression(final String query) {
-        final ExpressionFlow flow = new ExpressionFlow(query, context);
-        return JsonPipe.from(jsonElement).withContext(context).flush(flow).get();
+        final ExpressionFlow flow = new ExpressionFlow(query);
+        return JsonPipe.from(jsonElement).flush(flow).get();
     }
 
     public JsonPipe parseThen(final String rawQuery) {
         final JsonElement result = parse(rawQuery);
-        return JsonPipe.from(result).withContext(context);
+        return JsonPipe.from(result);
     }
+
 }

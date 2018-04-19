@@ -17,7 +17,6 @@
 package io.jigson.json.expression;
 
 import com.google.gson.JsonElement;
-import io.jigson.config.Context;
 import io.jigson.expression.ExpressionFactory;
 import io.jigson.expression.SimpleExpression;
 import org.apache.commons.lang3.StringUtils;
@@ -35,8 +34,6 @@ public class JsonExpression implements SimpleExpression {
     private final JsonElement jsonElement;
     private final String criterion;
 
-    private Context context = Context.newContext();
-
     JsonExpression(final JsonElement jsonElement, final String criterion) {
         this.jsonElement = jsonElement;
         this.criterion = criterion.trim().replace(SPACE, EMPTY);
@@ -44,11 +41,6 @@ public class JsonExpression implements SimpleExpression {
 
     public static JsonExpression from(final JsonElement jsonElement, final String criterion) {
         return new JsonExpression(jsonElement, criterion);
-    }
-
-    public JsonExpression withContext(final Context context) {
-        this.context = context;
-        return this;
     }
 
     @Override
@@ -76,7 +68,7 @@ public class JsonExpression implements SimpleExpression {
     }
 
     private JsonPredicate createPredicate(final String criterion) {
-        return JsonPredicate.from(criterion).withContext(context);
+        return JsonPredicate.from(criterion);
     }
 
     private List<String> splitCriterionIfComplex(final String logicalOperator) {

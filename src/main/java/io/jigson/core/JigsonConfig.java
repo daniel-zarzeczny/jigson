@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package io.jigson.config;
+package io.jigson.core;
 
 
 import io.jigson.json.filter.JsonArrayFilter;
@@ -23,63 +23,64 @@ import java.math.BigDecimal;
 
 import static io.jigson.json.filter.JsonArrayFilter.Strategy.*;
 
-public final class Context {
+public final class JigsonConfig {
 
-    private final FilterContext filterContext = new FilterContext();
-    private final NumberContext numberContext = new NumberContext();
 
-    private Context() {
+    private final FiltersConfig filtersConfig = new FiltersConfig();
+    private final NumbersConfig numbersConfig = new NumbersConfig();
+
+    private JigsonConfig() {
     }
 
-    public static Context newContext() {
-        return new Context();
+    public static JigsonConfig newInstance() {
+        return new JigsonConfig();
     }
 
-    public FilterContext filters() {
-        return this.filterContext;
+    public FiltersConfig filters() {
+        return this.filtersConfig;
     }
 
-    public NumberContext numbers() {
-        return this.numberContext;
+    public NumbersConfig numbers() {
+        return this.numbersConfig;
     }
 
-    private Context context() {
+    private JigsonConfig config() {
         return this;
     }
 
-    public class FilterContext {
+    public class FiltersConfig {
 
-        private final ArraysContext arraysContext;
+        private final ArraysConfig arraysConfig;
 
-        private FilterContext() {
-            this.arraysContext = new ArraysContext();
+        private FiltersConfig() {
+            this.arraysConfig = new ArraysConfig();
         }
 
-        public ArraysContext arrays() {
-            return arraysContext;
+        public ArraysConfig arrays() {
+            return arraysConfig;
         }
 
-        public class ArraysContext {
+        public class ArraysConfig {
 
             private JsonArrayFilter.Strategy filterStrategy;
 
-            private ArraysContext() {
+            private ArraysConfig() {
                 this.filterStrategy = ALL_IF_ANY_MATCHING;
             }
 
-            public Context allIfAnyMatching() {
+            public JigsonConfig allIfAnyMatching() {
                 this.filterStrategy = ALL_IF_ANY_MATCHING;
-                return context();
+                return config();
             }
 
-            public Context keepMatchingAndPrimitives() {
+            public JigsonConfig keepMatchingAndPrimitives() {
                 this.filterStrategy = KEEP_MATCHING_AND_PRIMITIVES;
-                return context();
+                return config();
             }
 
-            public Context onlyMatching() {
+            public JigsonConfig onlyMatching() {
                 this.filterStrategy = ONLY_MATCHING;
-                return context();
+                return config();
             }
 
             public JsonArrayFilter.Strategy strategy() {
@@ -88,23 +89,23 @@ public final class Context {
         }
     }
 
-    public class NumberContext {
+    public class NumbersConfig {
 
         private static final int ROUNDING_MODE_AMOUNT = 8;
         private int precision;
         private int roundingMode;
 
-        private NumberContext() {
+        private NumbersConfig() {
             this.precision = 2;
             this.roundingMode = BigDecimal.ROUND_HALF_UP;
         }
 
-        public Context withPrecision(final int precision) {
+        public JigsonConfig withPrecision(final int precision) {
             this.precision = precision;
-            return context();
+            return config();
         }
 
-        public NumberContext withPrecisionAnd(final int precision) {
+        public NumbersConfig withPrecisionAnd(final int precision) {
             withPrecision(precision);
             return this;
         }
@@ -113,12 +114,12 @@ public final class Context {
             return Math.abs(precision);
         }
 
-        public Context withRoundingMode(final int roundingMode) {
+        public JigsonConfig withRoundingMode(final int roundingMode) {
             this.roundingMode = roundingMode % ROUNDING_MODE_AMOUNT;
-            return context();
+            return config();
         }
 
-        public NumberContext roundingModeAnd(final int roundingMode) {
+        public NumbersConfig roundingModeAnd(final int roundingMode) {
             withRoundingMode(roundingMode);
             return this;
         }
@@ -127,4 +128,6 @@ public final class Context {
             return roundingMode;
         }
     }
+
+
 }

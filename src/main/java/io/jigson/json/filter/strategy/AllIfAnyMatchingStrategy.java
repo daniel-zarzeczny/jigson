@@ -19,7 +19,6 @@ package io.jigson.json.filter.strategy;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import io.jigson.config.Context;
 
 import java.util.stream.IntStream;
 
@@ -33,12 +32,12 @@ class AllIfAnyMatchingStrategy extends AbstractJsonArrayFilterStrategy {
     }
 
     @Override
-    public JsonElement filter(final JsonArray jsonArray, final String criterion, final Context context) {
+    public JsonElement filter(final JsonArray jsonArray, final String criterion) {
         final boolean anyMatch =
                 IntStream
                         .range(STARTING_INDEX, jsonArray.size())
                         .mapToObj(jsonArray::get)
-                        .map(item -> filterWithRouting(item, criterion, context))
+                        .map(item -> filterWithRouting(item, criterion))
                         .filter(not(JsonElement::isJsonPrimitive))
                         .anyMatch(not(JsonElement::isJsonNull));
         return anyMatch ? jsonArray : JsonNull.INSTANCE;
