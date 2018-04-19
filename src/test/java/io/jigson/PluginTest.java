@@ -82,11 +82,13 @@ public class PluginTest {
         };
 
         // when
-        final Jigson jigson = Jigson.from(input);
-        final PluginsConfig config = jigson.pluginsConfig();
-        config.registerPlugin(newPlugin);
-
-        final JsonElement output = jigson.parse("@increment()");
+        final JsonElement output =
+                Jigson
+                        .from(input)
+                        .pluginsConfig()
+                        .registerPlugin(newPlugin)
+                        .and()
+                        .parse("@increment()");
 
         // then
         assertThat(output).isNotNull();

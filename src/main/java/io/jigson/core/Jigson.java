@@ -32,7 +32,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public final class Jigson {
 
     private final JsonElement jsonElement;
-    private final PluginsConfig pluginsConfig = PluginsConfig.newConfig();
+    private final PluginsConfig pluginsConfig = new PluginsConfig(this);
 
     private Jigson(final JsonElement jsonElement) {
         this.jsonElement = jsonElement;

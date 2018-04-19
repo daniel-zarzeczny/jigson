@@ -6,14 +6,12 @@ import io.jigson.plugin.PluginRegistry;
 
 public final class PluginsConfig {
 
+    private final Jigson jigson;
     private final PluginRegistry pluginRegistry;
 
-    private PluginsConfig() {
+    PluginsConfig(final Jigson jigson) {
+        this.jigson = jigson;
         this.pluginRegistry = PluginRegistry.INSTANCE;
-    }
-
-    static PluginsConfig newConfig() {
-        return new PluginsConfig();
     }
 
     void registerEmbeddedPlugins() {
@@ -34,5 +32,9 @@ public final class PluginsConfig {
     public PluginsConfig deregisterPlugin(final String key) {
         pluginRegistry.deregister(key);
         return this;
+    }
+
+    public Jigson and() {
+        return jigson;
     }
 }
