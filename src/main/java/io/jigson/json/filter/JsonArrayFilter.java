@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+@FunctionalInterface
 public interface JsonArrayFilter extends JsonFilter<JsonArray, JsonElement> {
 
     enum Strategy {

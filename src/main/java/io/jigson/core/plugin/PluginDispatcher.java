@@ -19,6 +19,7 @@ package io.jigson.core.plugin;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import io.jigson.expression.predicate.Predicate;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 import io.jigson.plugin.PluginRegistry;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +33,14 @@ public class PluginDispatcher {
     private PluginDispatcher() {
     }
 
-    public static JsonElement dispatch(final JsonElement jsonElement, final String pluginKey) {
+    public static JsonElement dispatch(final JsonElement jsonElement,
+                                       final String pluginKey,
+                                       final JigsonContext context) {
 
         if (Objects.isNull(jsonElement)) {
             throw new IllegalArgumentException();
         }
-        return new Router(PluginRegistry.INSTANCE).route(pluginKey, jsonElement);
+        return new Router(PluginRegistry.INSTANCE).route(pluginKey, jsonElement, context);
     }
 
 
@@ -55,7 +58,7 @@ public class PluginDispatcher {
             return this;
         }
 
-        private JsonElement route(final String key, final JsonElement jsonElement) {
+        private JsonElement route(final String key, final JsonElement jsonElement, final JigsonContext context) {
 
             return
                     routingRules
@@ -64,7 +67,7 @@ public class PluginDispatcher {
                             .filter(predicate -> predicate.accept(key))
                             .findFirst()
                             .map(routingRules::get)
-                            .map(plugin -> plugin.flow(jsonElement))
+                            .map(plugin -> plugin.flow(jsonElement, context))
                             .orElseThrow(UnrecognizedPluginException::new);
         }
     }

@@ -16,5 +16,6 @@
 
 package io.jigson.expression;
 
+@FunctionalInterface
 public interface SimpleExpression extends BooleanExpression {
 }

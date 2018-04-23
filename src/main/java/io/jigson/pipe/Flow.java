@@ -16,6 +16,7 @@
 
 package io.jigson.pipe;
 
+@FunctionalInterface
 public interface Flow<T, R> {
 
     R flow(T input);

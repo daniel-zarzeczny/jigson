@@ -20,10 +20,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.core.JigsonConfig;
 import io.jigson.core.JigsonConfigHolder;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 public class AveragePlugin implements JsonPlugin {
 
@@ -45,9 +45,15 @@ public class AveragePlugin implements JsonPlugin {
     }
 
     @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
+    public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement, final JigsonContext context) {
+
         final BigDecimal sum = SumPlugin.INSTANCE.flow(jsonElement).getAsBigDecimal();
-        if (Objects.nonNull(jsonElement) && jsonElement.isJsonArray()) {
+        if (jsonElement.isJsonArray()) {
             final BigDecimal divisor = new BigDecimal(jsonElement.getAsJsonArray().size());
             final BigDecimal average = sum.divide(divisor, precision, roundingMode);
             return asJsonPrimitive(average);

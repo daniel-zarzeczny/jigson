@@ -2,13 +2,13 @@ package io.jigson;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 import io.jigson.core.Jigson;
 import io.jigson.core.PluginsConfig;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 import io.jigson.plugin.PluginRegistry;
 import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -42,7 +42,7 @@ public class PluginTest {
             }
 
             @Override
-            public JsonElement flow(JsonElement input) {
+            public JsonElement flow(final JsonElement input, final JigsonContext context) {
                 throw new UnsupportedOperationException();
             }
         };
@@ -65,34 +65,43 @@ public class PluginTest {
 
         // given
         final String pluginKey = "increment";
-        final AtomicInteger counter = new AtomicInteger(0);
         final JsonNull input = JsonNull.INSTANCE;
 
+        final String counterKey = "counterValue";
+        final int counterValue = 0;
+
+        final JigsonContext context = JigsonContext.newContext();
+        context.put(counterKey, counterValue);
+
         final JsonPlugin newPlugin = new JsonPlugin() {
+
             @Override
             public String getKey() {
                 return pluginKey;
             }
 
             @Override
-            public JsonElement flow(final JsonElement input) {
-                counter.incrementAndGet();
-                return input;
+            public JsonElement flow(final JsonElement input, final JigsonContext context) {
+                Integer counter = context.getInt(counterKey).orElseThrow(IllegalArgumentException::new);
+                return new JsonPrimitive(++counter);
             }
+
         };
 
         // when
-        final JsonElement output =
+        final Integer actualCounter =
                 Jigson
                         .from(input)
                         .pluginsConfig()
                         .registerPlugin(newPlugin)
                         .and()
-                        .parse("@increment()");
+                        .parseThen("@increment()", context)
+                        .mapToObj(JsonElement::getAsInt)
+                        .get()
+                        .orElseThrow(IllegalArgumentException::new);
 
         // then
-        assertThat(output).isNotNull();
-        assertThat(output).isSameAs(input);
-        assertThat(counter.get()).isEqualTo(1);
+        assertThat(actualCounter).isNotNull();
+        assertThat(actualCounter).isEqualTo(counterValue + 1);
     }
 }

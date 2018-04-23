@@ -19,6 +19,7 @@ package io.jigson.core.plugin;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
@@ -38,7 +39,12 @@ public class CountPlugin implements JsonPlugin {
     }
 
     @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
+    public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement, final JigsonContext context) {
 
         final Optional<JsonElement> count =
                 ProcessingPipe

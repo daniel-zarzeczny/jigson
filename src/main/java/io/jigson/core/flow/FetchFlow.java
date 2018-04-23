@@ -22,7 +22,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.jigson.core.plugin.PluginDispatcher;
 import io.jigson.json.pipe.JsonPipe;
-import io.jigson.pipe.UnitaryFlow;
+import io.jigson.pipe.ContextFlow;
+import io.jigson.pipe.JigsonContext;
 
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -34,7 +35,7 @@ import static io.jigson.utils.PathUtils.findPropertyName;
 import static io.jigson.utils.PathUtils.isFunction;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-public class FetchFlow implements UnitaryFlow<JsonElement> {
+public class FetchFlow implements ContextFlow<JsonElement, JsonElement> {
 
     private final Query query;
 
@@ -42,14 +43,19 @@ public class FetchFlow implements UnitaryFlow<JsonElement> {
         this.query = query.fork();
     }
 
+    @Override
     public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
 
+    @Override
+    public JsonElement flow(final JsonElement jsonElement, final JigsonContext context) {
         JsonElement currentElement = jsonElement;
         String currentPath = query.nextPath();
 
         while (isNotBlank(currentPath)) {
             if (isFunction(currentPath)) {
-                currentElement = PluginDispatcher.dispatch(currentElement, currentPath);
+                currentElement = PluginDispatcher.dispatch(currentElement, currentPath, context);
             } else {
                 currentElement = fetch(currentElement, currentPath);
             }

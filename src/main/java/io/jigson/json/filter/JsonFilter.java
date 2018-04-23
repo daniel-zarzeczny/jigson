@@ -18,6 +18,7 @@ package io.jigson.json.filter;
 
 import com.google.gson.JsonElement;
 
+@FunctionalInterface
 public interface JsonFilter<T extends JsonElement, R> {
     R filter(T jsonElement, String criterion);
 }

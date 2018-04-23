@@ -16,6 +16,7 @@
 
 package io.jigson.expression;
 
+@FunctionalInterface
 public interface Expression<R> {
 
     R interpret();

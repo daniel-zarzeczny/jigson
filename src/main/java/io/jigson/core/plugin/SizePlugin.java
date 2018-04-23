@@ -16,7 +16,7 @@
 package io.jigson.core.plugin;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 
 /**
@@ -38,7 +38,12 @@ public class SizePlugin implements JsonPlugin {
     }
 
     @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
-        return CountPlugin.INSTANCE.flow(jsonElement);
+    public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonElement flow(final JsonElement jsonElement, final JigsonContext context) {
+        return CountPlugin.INSTANCE.flow(jsonElement, context);
     }
 }

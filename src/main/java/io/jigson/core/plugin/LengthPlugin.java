@@ -19,6 +19,7 @@ package io.jigson.core.plugin;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
@@ -40,7 +41,12 @@ public class LengthPlugin implements JsonPlugin {
     }
 
     @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
+    public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement, final JigsonContext context) {
 
         final Optional<JsonElement> length =
                 ProcessingPipe
@@ -51,9 +57,7 @@ public class LengthPlugin implements JsonPlugin {
                         .whenJsonArray(this::handleArray)
                         .process()
                         .get();
-        return length
-                .map(JsonElement::getAsJsonPrimitive)
-                .orElse(ZERO);
+        return length.map(JsonElement::getAsJsonPrimitive).orElse(ZERO);
     }
 
     private JsonPrimitive handleNullOrJsonNull(final JsonElement jsonElement) {
@@ -70,7 +74,7 @@ public class LengthPlugin implements JsonPlugin {
 
     }
 
-    private JsonPrimitive handleArray(final JsonElement jsonElement) {
+    private JsonElement handleArray(final JsonElement jsonElement) {
         return CountPlugin.INSTANCE.flow(jsonElement);
     }
 }

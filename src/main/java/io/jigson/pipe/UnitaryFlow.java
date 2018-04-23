@@ -16,5 +16,6 @@
 
 package io.jigson.pipe;
 
+@FunctionalInterface
 public interface UnitaryFlow<T> extends Flow<T, T> {
 }

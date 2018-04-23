@@ -23,6 +23,8 @@ import io.jigson.core.flow.FetchFlow;
 import io.jigson.core.flow.KeepFlow;
 import io.jigson.core.flow.Query;
 import io.jigson.json.pipe.JsonPipe;
+import io.jigson.pipe.ContextJoinPipe;
+import io.jigson.pipe.JigsonContext;
 
 import java.util.Optional;
 
@@ -54,6 +56,10 @@ public final class Jigson {
     }
 
     public JsonElement parse(final String rawQuery) {
+        return parse(rawQuery, JigsonContext.newContext());
+    }
+
+    public JsonElement parse(final String rawQuery, final JigsonContext context) {
 
         final String trimmedQuery = Optional.ofNullable(rawQuery).orElse(EMPTY).trim();
 
@@ -66,33 +72,37 @@ public final class Jigson {
             if (Token.DOLLAR_SYMBOL == initialTokenIndex) {
                 throw new UnsupportedOperationException("Not supported so far!");
             } else if (Token.AT_SYMBOL == initialTokenIndex) {
-                return fetch(query);
+                return fetch(query, context);
             } else if (Token.HASH_SYMBOL == initialTokenIndex) {
                 return keep(query);
             } else if (Token.QUESTION_MARK == initialTokenIndex) {
-                return expression(trimmedQuery);
+                return expression(trimmedQuery, context);
             }
             throw new IllegalPrefixTokenException();
         }
         throw new UnexpectedSymbolException();
     }
 
-    private JsonElement fetch(final Query query) {
+    private JsonElement fetch(final Query query, final JigsonContext context) {
         final FetchFlow flow = new FetchFlow(query);
-        return JsonPipe.from(jsonElement).flush(flow).get();
+        return ContextJoinPipe.from(jsonElement).withContext(context).flush(flow).get();
     }
 
     private JsonElement keep(final Query query) {
         return new KeepFlow(query).flow(jsonElement);
     }
 
-    private JsonPrimitive expression(final String query) {
+    private JsonPrimitive expression(final String query, final JigsonContext context) {
         final ExpressionFlow flow = new ExpressionFlow(query);
-        return JsonPipe.from(jsonElement).flush(flow).get();
+        return ContextJoinPipe.from(jsonElement).withContext(context).flush(flow).get();
     }
 
     public JsonPipe parseThen(final String rawQuery) {
-        final JsonElement result = parse(rawQuery);
+        return parseThen(rawQuery, JigsonContext.newContext());
+    }
+
+    public JsonPipe parseThen(final String rawQuery, final JigsonContext context) {
+        final JsonElement result = parse(rawQuery, context);
         return JsonPipe.from(result);
     }
 

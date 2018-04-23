@@ -18,6 +18,9 @@ package io.jigson.core.plugin;
 
 public final class IllegalJsonElementException extends RuntimeException {
 
+    public IllegalJsonElementException() {
+    }
+
     public IllegalJsonElementException(final String message) {
         super(message);
     }

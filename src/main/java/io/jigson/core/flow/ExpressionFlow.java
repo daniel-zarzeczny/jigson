@@ -24,7 +24,8 @@ import io.jigson.core.TokenizerFactory;
 import io.jigson.expression.Operators;
 import io.jigson.expression.predicate.Predicate;
 import io.jigson.expression.predicate.PredicateFactory;
-import io.jigson.pipe.Flow;
+import io.jigson.pipe.ContextFlow;
+import io.jigson.pipe.JigsonContext;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -37,7 +38,7 @@ import java.util.Set;
  *
  * @author Daniel Zarzeczny
  */
-public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
+public class ExpressionFlow implements ContextFlow<JsonElement, JsonPrimitive> {
 
     private static final Set<String> COMPARISON_OPERATORS = Operators.comparisonOperators();
     private static final int INDEX_ONE = 1;
@@ -50,6 +51,11 @@ public class ExpressionFlow implements Flow<JsonElement, JsonPrimitive> {
 
     @Override
     public JsonPrimitive flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement, final JigsonContext context) {
 
         final String comparisionOperator = resolveComparisonOperator().orElseThrow(IllegalQueryException::new);
 

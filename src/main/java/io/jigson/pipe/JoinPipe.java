@@ -42,7 +42,7 @@ public class JoinPipe<T> {
         return JoinPipe.from(Source.of(output));
     }
 
-    public <U> JoinPipe<U> map(Supplier<Flow<T, U>> supplier) {
+    public <U> JoinPipe<U> map(final Supplier<Flow<T, U>> supplier) {
         return map(supplier.get());
     }
 
@@ -60,7 +60,7 @@ public class JoinPipe<T> {
     }
 
     public JoinPipe<Boolean> matchThen(final Predicate<T> predicate) {
-        final boolean match = predicate.accept(source.get());
+        final boolean match = match(predicate);
         return JoinPipe.from(Source.of(match));
     }
 

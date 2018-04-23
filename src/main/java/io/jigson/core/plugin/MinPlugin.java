@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import io.jigson.json.pipe.ProcessingPipe;
+import io.jigson.pipe.JigsonContext;
 import io.jigson.plugin.JsonPlugin;
 
 import java.math.BigDecimal;
@@ -42,7 +43,12 @@ public class MinPlugin implements JsonPlugin {
     }
 
     @Override
-    public JsonPrimitive flow(final JsonElement jsonElement) {
+    public JsonElement flow(final JsonElement jsonElement) {
+        return flow(jsonElement, JigsonContext.newContext());
+    }
+
+    @Override
+    public JsonPrimitive flow(final JsonElement jsonElement, final JigsonContext context) {
 
         final Optional<JsonElement> min =
                 ProcessingPipe
@@ -53,9 +59,7 @@ public class MinPlugin implements JsonPlugin {
                         .whenJsonArray(this::handleArray)
                         .process()
                         .get();
-        return min
-                .map(JsonElement::getAsJsonPrimitive)
-                .orElse(asJsonPrimitive(MIN_VALUE));
+        return min.map(JsonElement::getAsJsonPrimitive).orElse(asJsonPrimitive(MIN_VALUE));
     }
 
     private JsonPrimitive handleNull(final JsonElement jsonElement) {
@@ -78,7 +82,8 @@ public class MinPlugin implements JsonPlugin {
                         .filter(Objects::nonNull)
                         .filter(not(JsonElement::isJsonNull))
                         .map(this::flow)
-                        .map(JsonPrimitive::getAsBigDecimal)
+                        .filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsBigDecimal)
                         .reduce(MAX_VALUE, BigDecimal::min);
         return asJsonPrimitive(min);
     }
