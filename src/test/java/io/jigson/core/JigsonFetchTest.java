@@ -298,7 +298,7 @@ public class JigsonFetchTest {
     public void shouldParseExpression_WhenComposedCorrectly() {
 
         // given
-        final String query = "?people.size() >= 5";
+        final String query = "$people.size() >= 5";
 
         // when
         final JsonElement result = Jigson.from(peopleObject).parse(query);
@@ -313,7 +313,7 @@ public class JigsonFetchTest {
     public void shouldThrowExceptionWhileParsing_WhenRightOperandIsNotNumeric() {
 
         // given
-        final String query = "?people.size() > XXX";
+        final String query = "$people.size() > XXX";
 
         // when
         Jigson.from(peopleObject).parse(query);
@@ -323,7 +323,7 @@ public class JigsonFetchTest {
     public void shouldThrowExceptionWhileParsing_WhenLeftOperandIsNotNumeric() {
 
         // given
-        final String query = "?people(firstName=John).lastName > 5";
+        final String query = "$people(firstName=John).lastName > 5";
         final JigsonConfig config = JigsonConfig.newInstance().filters().arrays().onlyMatching();
 
         // when
@@ -334,7 +334,7 @@ public class JigsonFetchTest {
     public void shouldThrowExceptionWhileParsing_WhenComparisonOperatorNotFound() {
 
         // given
-        final String query = "?people.size()";
+        final String query = "$people.size()";
 
         // when
         Jigson.from(peopleObject).parse(query);

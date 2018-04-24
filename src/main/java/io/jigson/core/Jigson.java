@@ -69,13 +69,11 @@ public final class Jigson {
             final Token initialToken = query.next();
             final int initialTokenIndex = initialToken.getIndex();
 
-            if (Token.DOLLAR_SYMBOL == initialTokenIndex) {
-                throw new UnsupportedOperationException("Not supported so far!");
-            } else if (Token.AT_SYMBOL == initialTokenIndex) {
+            if (Token.AT_SYMBOL == initialTokenIndex) {
                 return fetch(query, context);
             } else if (Token.HASH_SYMBOL == initialTokenIndex) {
                 return keep(query);
-            } else if (Token.QUESTION_MARK == initialTokenIndex) {
+            } else if (Token.DOLLAR_SYMBOL == initialTokenIndex) {
                 return expression(trimmedQuery, context);
             }
             throw new IllegalPrefixTokenException();

@@ -17,7 +17,7 @@ When taking advantage of JiGSON you have available out of the box **3 filtering 
 | Name | Prefix | Query Example | Description |
 | :------- | :----- | :----- | :----- |
 | [Fetch Mode](#fetch_mode) | `@` | `@people(firstName=John).age`| **Fetches** `JsonElement` specified by path (respecting applied filters) |
-| [Expression Mode](#expression_mode) | `?` | `?people(firstName=John).age.avg() < 20`| Resolves value of **logical expression** |
+| [Expression Mode](#expression_mode) | `$` | `$people(firstName=John).age.avg() < 20`| Resolves value of **logical expression** |
 | [Keep Mode](#keep_mode) | `#` | `#people(firstName=John).age`| Filters JSON document **keeping** only `JsonElements` meeting specified criterion (if any applied). All other elements aren't included in output `JsonElement` |
 
 
@@ -75,10 +75,10 @@ Let's assume we have a JSON document as follows:
 
 | JiGSON Query | Result |
 | :------- | :----- |
-| `?people.count() = 4` | `false` wrapped in `JsonPrimitive` |
-| `?people(firstName=John&&age<100).age.avg() <= 50` | `true` wrapped in `JsonPrimitive`|
-| <code>?people(firstName=John&#124;&#124;lastName=Stark).address(city=Winterfell).count() != 3</code> | `true` wrapped in `JsonPrimitive`|
-| `?people[2](firstName=Brandon).address.city = Winterfell` | `true` wrapped in `JsonPrimitive`|
+| `$people.count() = 4` | `false` wrapped in `JsonPrimitive` |
+| `$people(firstName=John&&age<100).age.avg() <= 50` | `true` wrapped in `JsonPrimitive`|
+| <code>$people(firstName=John&#124;&#124;lastName=Stark).address(city=Winterfell).count() != 3</code> | `true` wrapped in `JsonPrimitive`|
+| `$people[2](firstName=Brandon).address.city = Winterfell` | `true` wrapped in `JsonPrimitive`|
 
 ### Known limitations :warning:
 * the left operand must **ALWAYS** be a JiGSON query
