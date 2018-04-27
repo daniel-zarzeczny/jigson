@@ -34,7 +34,7 @@ public class JigsonContext extends HashMap<String, Object> {
         return get(key, String.class);
     }
 
-    private <T> Optional<T> get(final String key, final Class<T> clazz) {
+    public <T> Optional<T> get(final String key, final Class<T> clazz) {
         return getObject(key).map(clazz::cast);
     }
 
